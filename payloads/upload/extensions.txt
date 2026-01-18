@@ -1,0 +1,78 @@
+# File Upload Extension Bypass
+
+# ============ PHP ============
+.php
+.php3
+.php4
+.php5
+.php7
+.php8
+.pht
+.phps
+.phar
+.phpt
+.pgif
+.phtml
+.phtm
+.inc
+
+# Case variations
+.pHp
+.PHP
+.Php
+.pHP
+
+# Double extensions
+.php.jpg
+.php.png
+.php.gif
+.php.txt
+.jpg.php
+.png.php
+
+# Null byte (old servers)
+.php%00.jpg
+.php%00.png
+.php\x00.jpg
+
+# Semicolon
+.php;.jpg
+
+# ============ ASP/ASPX ============
+.asp
+.aspx
+.asa
+.cer
+.cdx
+.ashx
+.asmx
+.ascx
+.config
+
+# ============ JSP ============
+.jsp
+.jspx
+.jsw
+.jsv
+.jspf
+
+# ============ Other ============
+.cgi
+.pl
+.py
+.rb
+.sh
+.shtml
+.htaccess
+.svg
+.xml
+
+# ============ Special ============
+.php::$DATA          # Windows ADS
+.php::$DATA.jpg
+.php:$DATA
+.php/               # Trailing slash
+.php\               # Backslash
+.php....            # Multiple dots
+..;/                # Path traversal
+shell.php/.jpg      # Apache quirk

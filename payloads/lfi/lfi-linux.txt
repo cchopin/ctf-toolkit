@@ -1,0 +1,68 @@
+# Basic LFI
+/etc/passwd
+/etc/shadow
+/etc/hosts
+/etc/hostname
+/etc/issue
+/etc/group
+/etc/motd
+
+# Proc filesystem
+/proc/self/environ
+/proc/self/cmdline
+/proc/self/fd/0
+/proc/self/fd/1
+/proc/self/fd/2
+/proc/self/status
+/proc/self/cwd
+/proc/version
+/proc/cmdline
+/proc/mounts
+/proc/net/tcp
+/proc/net/udp
+/proc/net/arp
+/proc/sched_debug
+
+# SSH keys
+/root/.ssh/id_rsa
+/root/.ssh/id_rsa.pub
+/root/.ssh/authorized_keys
+/root/.ssh/known_hosts
+/home/user/.ssh/id_rsa
+
+# Logs
+/var/log/apache2/access.log
+/var/log/apache2/error.log
+/var/log/apache/access.log
+/var/log/apache/error.log
+/var/log/nginx/access.log
+/var/log/nginx/error.log
+/var/log/httpd/access_log
+/var/log/httpd/error_log
+/var/log/auth.log
+/var/log/syslog
+/var/log/messages
+/var/log/mail.log
+
+# Web configs
+/var/www/html/.htaccess
+/var/www/html/wp-config.php
+/var/www/html/config.php
+/var/www/html/.env
+/etc/apache2/apache2.conf
+/etc/apache2/sites-enabled/000-default.conf
+/etc/nginx/nginx.conf
+/etc/nginx/sites-enabled/default
+/etc/php/7.4/apache2/php.ini
+/usr/local/etc/php/php.ini
+
+# User files
+/root/.bash_history
+/root/.bashrc
+/root/.profile
+/home/user/.bash_history
+
+# Misc
+/etc/crontab
+/etc/mysql/my.cnf
+/etc/postgresql/*/main/pg_hba.conf

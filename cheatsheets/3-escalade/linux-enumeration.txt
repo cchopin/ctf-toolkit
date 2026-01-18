@@ -1,0 +1,185 @@
+# Linux Privilege Escalation - Manual Enumeration
+
+# ============================================
+# SUID / SGID / Capabilities
+# ============================================
+
+# Find SUID binaries
+find / -perm -4000 -type f 2>/dev/null
+find / -perm -u=s -type f 2>/dev/null
+
+# Find SGID binaries
+find / -perm -2000 -type f 2>/dev/null
+find / -perm -g=s -type f 2>/dev/null
+
+# Find SUID + SGID
+find / -perm -6000 -type f 2>/dev/null
+
+# Find files with capabilities
+getcap -r / 2>/dev/null
+/sbin/getcap -r / 2>/dev/null
+
+# ============================================
+# Writable files & directories
+# ============================================
+
+# World-writable files
+find / -writable -type f 2>/dev/null | grep -v proc
+find / -perm -o+w -type f 2>/dev/null
+
+# World-writable directories
+find / -writable -type d 2>/dev/null
+find / -perm -o+w -type d 2>/dev/null
+
+# Files owned by current user
+find / -user $(whoami) 2>/dev/null
+
+# Files owned by root writable by me
+find / -user root -writable 2>/dev/null
+
+# ============================================
+# Cron jobs
+# ============================================
+
+cat /etc/crontab
+cat /etc/cron.d/*
+cat /var/spool/cron/crontabs/*
+ls -la /etc/cron.*
+systemctl list-timers --all
+
+# Writable cron scripts
+find /etc/cron* -writable 2>/dev/null
+
+# ============================================
+# Passwords & credentials
+# ============================================
+
+# Password files
+cat /etc/passwd
+cat /etc/shadow
+cat /etc/master.passwd
+
+# Config files with passwords
+grep -r "password" /etc/ 2>/dev/null
+grep -r "pass" /var/www/ 2>/dev/null
+find / -name "*.conf" -exec grep -l "password" {} \; 2>/dev/null
+
+# SSH keys
+find / -name "id_rsa" 2>/dev/null
+find / -name "id_dsa" 2>/dev/null
+find / -name "authorized_keys" 2>/dev/null
+cat ~/.ssh/id_rsa
+cat /root/.ssh/id_rsa
+
+# History files
+cat ~/.bash_history
+cat ~/.zsh_history
+cat ~/.mysql_history
+cat ~/.psql_history
+
+# ============================================
+# Sudo
+# ============================================
+
+sudo -l
+sudo -V  # Check version for CVEs
+cat /etc/sudoers
+cat /etc/sudoers.d/*
+
+# ============================================
+# Users & groups
+# ============================================
+
+id
+whoami
+groups
+cat /etc/passwd | grep -v nologin
+cat /etc/group
+w
+who
+last
+
+# ============================================
+# System info
+# ============================================
+
+uname -a
+cat /etc/os-release
+cat /etc/issue
+cat /proc/version
+hostname
+hostnamectl
+
+# ============================================
+# Network
+# ============================================
+
+ip a
+ifconfig
+netstat -tulpn
+ss -tulpn
+cat /etc/hosts
+cat /etc/resolv.conf
+arp -a
+route -n
+
+# ============================================
+# Processes & services
+# ============================================
+
+ps aux
+ps aux | grep root
+pstree
+systemctl list-units --type=service --state=running
+cat /etc/services
+
+# ============================================
+# Installed software
+# ============================================
+
+dpkg -l
+rpm -qa
+apt list --installed
+pip list
+pip3 list
+
+# ============================================
+# Interesting files
+# ============================================
+
+# Config files
+cat /etc/apache2/apache2.conf
+cat /etc/nginx/nginx.conf
+cat /var/www/html/wp-config.php
+cat /var/www/html/.env
+cat /var/www/html/config.php
+
+# Logs
+cat /var/log/auth.log
+cat /var/log/syslog
+cat /var/log/apache2/access.log
+
+# ============================================
+# Kernel exploits check
+# ============================================
+
+uname -r
+# Then search: searchsploit linux kernel <version>
+
+# Common vulnerable versions:
+# 2.6.x - Dirty COW, etc.
+# 3.x - OverlayFS, etc.
+# 4.x - Various
+# 5.x - DirtyPipe (5.8+)
+
+# ============================================
+# Container escape
+# ============================================
+
+# Check if in container
+cat /proc/1/cgroup
+ls -la /.dockerenv
+hostname
+
+# Docker socket
+ls -la /var/run/docker.sock

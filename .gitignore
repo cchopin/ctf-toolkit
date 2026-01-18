@@ -1,0 +1,116 @@
+# ===================
+# WORDLISTS (trop lourdes pour git)
+# ===================
+wordlists/seclists/
+wordlists/rockyou/
+wordlists/*.txt
+!wordlists/custom/
+
+# ===================
+# SECRETS & CREDENTIALS
+# ===================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+*.gpg
+credentials*
+secrets*
+.env
+.env.*
+tokens.txt
+api_keys*
+
+# ===================
+# CHALLENGE DATA (peut contenir des flags)
+# ===================
+challenges/**/loot/
+challenges/**/flags.txt
+challenges/**/notes.txt
+challenges/**/*.pcap
+challenges/**/*.pcapng
+challenges/**/*.raw
+challenges/**/*.mem
+challenges/**/*.vmem
+challenges/**/*.dmp
+
+# ===================
+# BINAIRES & EXÉCUTABLES
+# ===================
+*.exe
+*.dll
+*.so
+*.dylib
+*.elf
+*.bin
+*.out
+*.o
+*.a
+*.pyc
+*.pyo
+__pycache__/
+*.class
+*.jar
+
+# ===================
+# ARCHIVES LOURDES
+# ===================
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.iso
+*.img
+
+# ===================
+# FICHIERS TEMPORAIRES
+# ===================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.log
+*.bak
+*.backup
+
+# ===================
+# OUTILS INSTALLÉS LOCALEMENT
+# ===================
+tools/
+venv/
+.venv/
+node_modules/
+vendor/
+
+# ===================
+# IDE & EDITOR
+# ===================
+.idea/
+.vscode/
+*.sublime-*
+.zed/
+
+# ===================
+# REVERSE SHELLS ACTIFS (sécurité)
+# ===================
+*.shell
+*_shell.*
+reverse_*.py
+bind_*.py
+
+# ===================
+# OUTPUTS DE SCANS
+# ===================
+*.nmap
+*.gnmap
+*.xml
+scans/
+results/
+output/

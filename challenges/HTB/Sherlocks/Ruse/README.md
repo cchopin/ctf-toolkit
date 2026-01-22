@@ -1,8 +1,8 @@
 # Ruse - Sherlock Write-up
 
-**Difficulté**: Hard
-**Catégorie**: macOS Forensics
-**Outils utilisés**: sqlite3, strings, log show, xattr, hdiutil, plutil
+- **Difficulté**: Hard  
+- **Catégorie**: macOS Forensics  
+- **Outils utilisés**: sqlite3, strings, log show, xattr, hdiutil, plutil  
 
 ## Scénario
 

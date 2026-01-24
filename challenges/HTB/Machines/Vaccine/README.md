@@ -1,10 +1,6 @@
-# Vaccine
+# Vaccine - Write-up HackTheBox
 
-| Propriété | Valeur |
-|-----------|--------|
-| OS | Linux |
-| Difficulté | Very Easy |
-| Catégorie | Starting Point |
+![HTB Vaccine](https://img.shields.io/badge/HackTheBox-Vaccine-green)![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Linux-blue)
 
 ## Résumé
 

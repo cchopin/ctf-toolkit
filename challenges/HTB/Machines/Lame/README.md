@@ -1,18 +1,6 @@
 # Lame - Write-up HackTheBox
 
-![HTB Lame](https://img.shields.io/badge/HackTheBox-Lame-green)
-![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)
-![OS](https://img.shields.io/badge/OS-Linux-blue)
-
-## Informations
-
-| Propriété | Valeur |
-|-----------|--------|
-| Nom | Lame |
-| OS | Linux (Ubuntu) |
-| Difficulté | Facile |
-| Sortie | 2017 |
-| IP | 10.129.30.106 |
+![HTB Lame](https://img.shields.io/badge/HackTheBox-Lame-green)![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Linux-blue)
 
 ## Flags
 

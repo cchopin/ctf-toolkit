@@ -1,18 +1,6 @@
 # Conversor - Write-up HackTheBox
 
-![HTB Conversor](https://img.shields.io/badge/HackTheBox-Conversor-green)
-![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)
-![OS](https://img.shields.io/badge/OS-Linux-blue)
-
-## Informations
-
-| Propriété | Valeur |
-|-----------|--------|
-| Nom | Conversor |
-| OS | Linux (Ubuntu 22.04) |
-| Difficulté | Facile |
-| Sortie | 2025 |
-| IP | 10.129.45.169 |
+![HTB Conversor](https://img.shields.io/badge/HackTheBox-Conversor-green)![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Linux-blue)
 
 ## Flags
 

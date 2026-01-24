@@ -1,14 +1,6 @@
 # Archetype - Write-up HackTheBox
 
-| Info | |
-|------|------|
-| **Plateforme** | HackTheBox |
-| **Difficulté** | Très Facile |
-| **OS** | Windows Server 2019 |
-| **Catégorie** | Starting Point |
-| **URL** | https://app.hackthebox.com/machines/Archetype |
-
----
+![HTB Archetype](https://img.shields.io/badge/HackTheBox-Archetype-green)![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Windows-0078D6)
 
 ## Résumé
 

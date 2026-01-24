@@ -1,18 +1,6 @@
 # Cap - Write-up HackTheBox
 
-![HTB Cap](https://img.shields.io/badge/HackTheBox-Cap-green)
-![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)
-![OS](https://img.shields.io/badge/OS-Linux-blue)
-
-## Informations
-
-| Propriété | Valeur |
-|-----------|--------|
-| Nom | Cap |
-| OS | Linux |
-| Difficulté | Facile |
-| Sortie | 2021 |
-| IP | 10.129.45.142 |
+![HTB Cap](https://img.shields.io/badge/HackTheBox-Cap-green)![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Linux-blue)
 
 ---
 

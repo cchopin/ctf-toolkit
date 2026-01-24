@@ -1,18 +1,6 @@
 # Bike - Write-up HackTheBox
 
-![HTB Bike](https://img.shields.io/badge/HackTheBox-Bike-green)
-![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)
-![OS](https://img.shields.io/badge/OS-Linux-blue)
-
-## Informations
-
-| Propriété | Valeur |
-|-----------|--------|
-| Nom | Bike |
-| OS | Linux (Ubuntu) |
-| Difficulté | Très facile |
-| Catégorie | Starting Point |
-| IP | 10.129.97.64 |
+![HTB Bike](https://img.shields.io/badge/HackTheBox-Bike-green)![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Linux-blue)
 
 ## Flag
 

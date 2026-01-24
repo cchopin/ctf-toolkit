@@ -1,8 +1,6 @@
 # Ruse - Write-up Sherlock
 
-- **Difficulté** : Difficile
-- **Catégorie** : Forensique macOS
-- **Outils utilisés** : sqlite3, strings, log show, xattr, hdiutil, plutil  
+![HTB Ruse](https://img.shields.io/badge/HackTheBox-Ruse-green)![Difficulty](https://img.shields.io/badge/Difficulty-Hard-orange)![Category](https://img.shields.io/badge/Category-Forensics-purple)
 
 ## Scénario
 

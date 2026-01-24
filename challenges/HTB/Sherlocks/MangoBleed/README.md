@@ -1,4 +1,6 @@
-# MangoBleed - Write-up Sherlock HackTheBox
+# MangoBleed - Write-up Sherlock
+
+![HTB MangoBleed](https://img.shields.io/badge/HackTheBox-MangoBleed-green)![Difficulty](https://img.shields.io/badge/Difficulty-Medium-yellow)![Category](https://img.shields.io/badge/Category-Forensics-purple)
 
 ## Scénario
 

@@ -1,8 +1,6 @@
 # Oopsie - HackTheBox
 
-**Difficulté** : Very Easy
-**OS** : Linux (Ubuntu 18.04)
-**IP** : 10.129.95.191
+![HTB Oopsie](https://img.shields.io/badge/HackTheBox-Oopsie-green)![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Linux-blue)
 
 ## Résumé
 

@@ -1,7 +1,6 @@
 # PhishNet - Write-up Sherlock
 
-**Difficulté** : Très facile
-**Catégorie** : Forensique email / Analyse de phishing
+![HTB PhishNet](https://img.shields.io/badge/HackTheBox-PhishNet-green)![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)![Category](https://img.shields.io/badge/Category-Forensics-purple)
 
 ## Scénario
 

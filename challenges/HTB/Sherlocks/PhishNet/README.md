@@ -1,7 +1,7 @@
-# PhishNet - Sherlock Write-up
+# PhishNet - Write-up Sherlock
 
-**Difficulté**: Very Easy
-**Catégorie**: Email Forensics / Phishing Analysis
+**Difficulté** : Très facile
+**Catégorie** : Forensique email / Analyse de phishing
 
 ## Scénario
 
@@ -13,11 +13,11 @@ Une équipe comptable reçoit une demande de paiement urgente d'un fournisseur c
 
 ---
 
-## Task 1: What is the originating IP address of the sender?
+## Tâche 1 : Quelle est l'adresse IP d'origine de l'expéditeur ?
 
-**Réponse**: `45.67.89.10`
+**Réponse** : `45.67.89.10`
 
-**Explication**: L'IP d'origine se trouve dans l'en-tête `X-Originating-IP`:
+**Explication** : L'IP d'origine se trouve dans l'en-tête `X-Originating-IP` :
 
 ```
 X-Originating-IP: [45.67.89.10]
@@ -27,11 +27,11 @@ On peut aussi la confirmer avec `X-Sender-IP: 45.67.89.10`.
 
 ---
 
-## Task 2: Which mail server relayed this email before reaching the victim?
+## Tâche 2 : Quel serveur mail a relayé cet email avant d'atteindre la victime ?
 
-**Réponse**: `mail.business-finance.com`
+**Réponse** : `mail.business-finance.com`
 
-**Explication**: Les en-têtes `Received` se lisent de bas en haut (chronologiquement). Le dernier serveur avant la victime est visible ici:
+**Explication** : Les en-têtes `Received` se lisent de bas en haut (chronologiquement). Le dernier serveur avant la victime est visible ici :
 
 ```
 Received: from mail.business-finance.com ([203.0.113.25])
@@ -42,11 +42,11 @@ Le serveur `mail.business-finance.com` a relayé l'email vers `mail.target.com` 
 
 ---
 
-## Task 3: What is the sender's email address?
+## Tâche 3 : Quelle est l'adresse email de l'expéditeur ?
 
-**Réponse**: `finance@business-finance.com`
+**Réponse** : `finance@business-finance.com`
 
-**Explication**: L'adresse de l'expéditeur se trouve dans l'en-tête `From`:
+**Explication** : L'adresse de l'expéditeur se trouve dans l'en-tête `From` :
 
 ```
 From: "Finance Dept" <finance@business-finance.com>
@@ -54,11 +54,11 @@ From: "Finance Dept" <finance@business-finance.com>
 
 ---
 
-## Task 4: What is the 'Reply-To' email address specified in the email?
+## Tâche 4 : Quelle est l'adresse email 'Reply-To' spécifiée dans l'email ?
 
-**Réponse**: `support@business-finance.com`
+**Réponse** : `support@business-finance.com`
 
-**Explication**: L'en-tête `Reply-To` indique où les réponses seront envoyées:
+**Explication** : L'en-tête `Reply-To` indique où les réponses seront envoyées :
 
 ```
 Reply-To: <support@business-finance.com>
@@ -68,11 +68,11 @@ Cette technique est souvent utilisée en phishing pour rediriger les réponses v
 
 ---
 
-## Task 5: What is the SPF (Sender Policy Framework) result for this email?
+## Tâche 5 : Quel est le résultat SPF (Sender Policy Framework) pour cet email ?
 
-**Réponse**: `pass`
+**Réponse** : `pass`
 
-**Explication**: Le résultat SPF se trouve dans l'en-tête `Received-SPF` ou `Authentication-Results`:
+**Explication** : Le résultat SPF se trouve dans l'en-tête `Received-SPF` ou `Authentication-Results` :
 
 ```
 Received-SPF: Pass (protection.outlook.com: domain of business-finance.com designates 45.67.89.10 as permitted sender)
@@ -82,11 +82,11 @@ Un SPF "pass" signifie que l'IP de l'expéditeur est autorisée à envoyer des e
 
 ---
 
-## Task 6: What is the domain used in the phishing URL inside the email?
+## Tâche 6 : Quel est le domaine utilisé dans l'URL de phishing dans l'email ?
 
-**Réponse**: `secure.business-finance.com`
+**Réponse** : `secure.business-finance.com`
 
-**Explication**: Dans le corps HTML de l'email, on trouve le lien de phishing:
+**Explication** : Dans le corps HTML de l'email, on trouve le lien de phishing :
 
 ```html
 <a href="https://secure.business-finance.com/invoice/details/view/INV2025-0987/payment">Download Invoice</a>
@@ -96,11 +96,11 @@ Le domaine utilisé est `secure.business-finance.com`.
 
 ---
 
-## Task 7: What is the fake company name used in the email?
+## Tâche 7 : Quel est le nom de la fausse entreprise utilisé dans l'email ?
 
-**Réponse**: `Business Finance Ltd.`
+**Réponse** : `Business Finance Ltd.`
 
-**Explication**: Le nom de la fausse entreprise apparaît dans la signature de l'email:
+**Explication** : Le nom de la fausse entreprise apparaît dans la signature de l'email :
 
 ```html
 <p>Best regards,<br>Finance Department<br>Business Finance Ltd.</p>
@@ -110,11 +110,11 @@ On le retrouve aussi dans l'en-tête `X-Organization: Business Finance Ltd.`
 
 ---
 
-## Task 8: What is the name of the attachment included in the email?
+## Tâche 8 : Quel est le nom de la pièce jointe incluse dans l'email ?
 
-**Réponse**: `Invoice_2025_Payment.zip`
+**Réponse** : `Invoice_2025_Payment.zip`
 
-**Explication**: Le nom de la pièce jointe se trouve dans les en-têtes MIME:
+**Explication** : Le nom de la pièce jointe se trouve dans les en-têtes MIME :
 
 ```
 Content-Type: application/zip; name="Invoice_2025_Payment.zip"
@@ -123,11 +123,11 @@ Content-Disposition: attachment; filename="Invoice_2025_Payment.zip"
 
 ---
 
-## Task 9: What is the SHA-256 hash of the attachment?
+## Tâche 9 : Quel est le hash SHA-256 de la pièce jointe ?
 
-**Réponse**: `8379c41239e9af845b2ab6c27a7509ae8804d7d73e455c800a551b22ba25bb4a`
+**Réponse** : `8379c41239e9af845b2ab6c27a7509ae8804d7d73e455c800a551b22ba25bb4a`
 
-**Explication**: La pièce jointe est encodée en base64 dans l'email. Pour obtenir le hash:
+**Explication** : La pièce jointe est encodée en base64 dans l'email. Pour obtenir le hash :
 
 ```bash
 # Extraire le contenu base64 et le décoder
@@ -141,29 +141,29 @@ sha256sum attachment.zip
 
 ---
 
-## Task 10: What is the filename of the malicious file contained within the ZIP attachment?
+## Tâche 10 : Quel est le nom du fichier malveillant contenu dans la pièce jointe ZIP ?
 
-**Réponse**: `invoice_document.pdf.bat`
+**Réponse** : `invoice_document.pdf.bat`
 
-**Explication**: En analysant le contenu du ZIP (même tronqué), on peut extraire les métadonnées:
+**Explication** : En analysant le contenu du ZIP (même tronqué), on peut extraire les métadonnées :
 
 ```bash
 echo "UEsDBBQAAAAIABh/WloXPY4qcxITALvMGQAYAAAAaW52b2ljZV9kb2N1bWVudC5wZGYuYmF0zL3ZzuzIsR18LQN+h62DPujWX0e7" | base64 -d | strings
 ```
 
-Résultat: `invoice_document.pdf.bat`
+Résultat : `invoice_document.pdf.bat`
 
-C'est une technique de **double extension**: le fichier apparaît comme un PDF mais c'est en réalité un fichier batch (.bat) exécutable Windows. Sur Windows, si les extensions sont masquées, l'utilisateur ne verra que "invoice_document.pdf".
+C'est une technique de **double extension** : le fichier apparaît comme un PDF mais c'est en réalité un fichier batch (.bat) exécutable Windows. Sur Windows, si les extensions sont masquées, l'utilisateur ne verra que "invoice_document.pdf".
 
 ---
 
-## Task 11: Which MITRE ATT&CK techniques are associated with this attack?
+## Tâche 11 : Quelles techniques MITRE ATT&CK sont associées à cette attaque ?
 
-**Réponse**: `T1566.001, T1204.002, T1036.007`
+**Réponse** : `T1566.001, T1204.002, T1036.007`
 
-**Explication**: Cette attaque utilise plusieurs techniques documentées par MITRE ATT&CK:
+**Explication** : Cette attaque utilise plusieurs techniques documentées par MITRE ATT&CK :
 
-| Technique ID | Nom | Description |
+| ID technique | Nom | Description |
 |--------------|-----|-------------|
 | **T1566.001** | Phishing: Spearphishing Attachment | L'email contient une pièce jointe malveillante (.zip) |
 | **T1204.002** | User Execution: Malicious File | L'attaque nécessite que l'utilisateur ouvre/exécute le fichier |
@@ -171,7 +171,7 @@ C'est une technique de **double extension**: le fichier apparaît comme un PDF m
 
 ---
 
-## Indicateurs de Compromission (IOCs)
+## Indicateurs de compromission (IOCs)
 
 | Type | Valeur |
 |------|--------|
@@ -202,7 +202,7 @@ shasum -a 256 attachment.zip
 # Lister le contenu d'un ZIP
 unzip -l attachment.zip
 
-# Extraire les strings d'un fichier binaire
+# Extraire les chaînes d'un fichier binaire
 strings attachment.zip
 ```
 

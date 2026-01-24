@@ -17,7 +17,7 @@
 6. [Mouvement latéral - alice](#mouvement-latéral---alice)
 7. [Élévation de privilèges - root](#élévation-de-privilèges---root)
 8. [Privesc alternative - Tar Wildcard](#privesc-alternative---tar-wildcard)
-9. [Leçons apprises](#leçons-apprises)
+9. [À retenir](#à-retenir)
 
 ---
 
@@ -212,7 +212,7 @@ Site corporate avec les pages suivantes :
 - `/reviews` - Avis utilisateurs
 - `/login` - Panneau d'administration
 
-### Accès FTP Anonyme
+### Accès FTP anonyme
 
 ```bash
 ftp -n 10.10.10.83 <<EOF
@@ -772,7 +772,7 @@ bin:*:20182:0:99999:7:::
 
 ---
 
-## Privesc alternative - Tar Wildcard
+## Privesc alternative - Tar wildcard
 
 ### Découverte de la tâche cron
 
@@ -810,7 +810,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 Toutes les 5 minutes, root exécute `tar -zcf /home-john-backup.tgz *` dans `/home/john/`.
 
-### Injection via Tar Wildcard
+### Injection via Tar wildcard
 
 C'est une technique classique d'élévation de privilèges. Quand `tar` rencontre des fichiers nommés comme des options de ligne de commande, il les interprète comme telles.
 

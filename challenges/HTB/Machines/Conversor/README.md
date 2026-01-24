@@ -1,17 +1,17 @@
-# Conversor - HackTheBox Writeup
+# Conversor - Write-up HackTheBox
 
 ![HTB Conversor](https://img.shields.io/badge/HackTheBox-Conversor-green)
 ![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)
 ![OS](https://img.shields.io/badge/OS-Linux-blue)
 
-## Box Info
+## Informations
 
-| Property | Value |
-|----------|-------|
-| Name | Conversor |
+| Propriété | Valeur |
+|-----------|--------|
+| Nom | Conversor |
 | OS | Linux (Ubuntu 22.04) |
-| Difficulty | Easy |
-| Release | 2025 |
+| Difficulté | Facile |
+| Sortie | 2025 |
 | IP | 10.129.45.169 |
 
 ## Flags
@@ -25,7 +25,7 @@
 
 ## Reconnaissance
 
-### Nmap Scan
+### Nmap scan
 
 ```bash
 nmap -T4 10.129.45.169
@@ -37,7 +37,7 @@ PORT   STATE SERVICE
 80/tcp open  http
 ```
 
-### Web Enumeration
+### Énumération web
 
 Ajout au fichier hosts:
 ```bash
@@ -48,7 +48,7 @@ L'application est un convertisseur XML/XSLT vers HTML. Le code source est dispon
 
 ---
 
-## Source Code Analysis
+## Analyse du code source
 
 L'application est en Python Flask (`app.py`):
 
@@ -73,19 +73,19 @@ def convert():
 
 **Vulnérabilité**: Le parser XSLT n'a aucune restriction de sécurité, permettant l'utilisation d'extensions EXSLT.
 
-### Cron Job (install.md)
+### Tâche cron (install.md)
 
 ```
 * * * * * www-data for f in /var/www/conversor.htb/scripts/*.py; do python3 "$f"; done
 ```
 
-Un cron job exécute tous les fichiers `.py` dans `/var/www/conversor.htb/scripts/` chaque minute.
+Une tâche cron exécute tous les fichiers `.py` dans `/var/www/conversor.htb/scripts/` chaque minute.
 
 ---
 
 ## Exploitation
 
-### XSLT Injection via EXSLT Document Write
+### Injection XSLT via EXSLT document write
 
 On peut utiliser `exsl:document` pour écrire des fichiers sur le système.
 
@@ -126,13 +126,13 @@ nc -lvnp 4444
 
 2. Upload les fichiers via le site web
 
-3. Attendre ~1 minute (cron job)
+3. Attendre ~1 minute (tâche cron)
 
 4. Shell obtenu en tant que `www-data`
 
 ---
 
-## Privilege Escalation: www-data → fismathack
+## Élévation de privilèges : www-data → fismathack
 
 ### Dump de la base SQLite
 
@@ -145,7 +145,7 @@ sqlite3 /var/www/conversor.htb/instance/users.db "SELECT * FROM users;"
 5|tely|0af84df18f888bf5e60b9a63b61ff937
 ```
 
-### Crack du hash MD5
+### Cassage du hash MD5
 
 ```bash
 john --format=raw-md5 --wordlist=rockyou.txt hash.txt
@@ -163,7 +163,7 @@ cat ~/user.txt
 
 ---
 
-## Privilege Escalation: fismathack → root
+## Élévation de privilèges : fismathack → root
 
 ### Enumération sudo
 

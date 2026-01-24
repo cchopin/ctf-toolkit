@@ -1,8 +1,8 @@
-# Ruse - Sherlock Write-up
+# Ruse - Write-up Sherlock
 
-- **Difficulté**: Hard  
-- **Catégorie**: macOS Forensics  
-- **Outils utilisés**: sqlite3, strings, log show, xattr, hdiutil, plutil  
+- **Difficulté** : Difficile
+- **Catégorie** : Forensique macOS
+- **Outils utilisés** : sqlite3, strings, log show, xattr, hdiutil, plutil  
 
 ## Scénario
 
@@ -15,9 +15,9 @@ Un système macOS a été compromis après qu'un attaquant ait obtenu un accès 
 
 ---
 
-## Task 1: What is the version of the MacOS system?
+## Tâche 1 : Quelle est la version du système macOS ?
 
-**Méthode**: Lecture du fichier `SystemVersion.plist`
+**Méthode** : Lecture du fichier `SystemVersion.plist`
 
 ```bash
 cat ireks-Mac-Triage/System/Library/CoreServices/SystemVersion.plist
@@ -27,17 +27,17 @@ Le champ `ProductUserVisibleVersion` contient la version de macOS.
 
 ---
 
-## Task 2: What is the name of the malicious entity responsible for the initial access?
+## Tâche 2 : Quel est le nom de l'entité malveillante responsable de l'accès initial ?
 
-**Méthode**: Analyse des fichiers dans la Trash et de l'historique Safari
+**Méthode** : Analyse des fichiers dans la Corbeille et de l'historique Safari
 
 Chercher les applications suspectes dans `Users/irek/.Trash/` et analyser leur contenu (notamment les scripts shell).
 
 ---
 
-## Task 3: When did the user first initiate the download of that malicious entity (UTC)?
+## Tâche 3 : Quand l'utilisateur a-t-il initié le téléchargement de cette entité malveillante (UTC) ?
 
-**Méthode**: Analyse du fichier Downloads.plist de Safari
+**Méthode** : Analyse du fichier Downloads.plist de Safari
 
 ```bash
 plutil -convert xml1 -o - Users/irek/Library/Safari/Downloads.plist
@@ -47,9 +47,9 @@ Chercher le champ `DownloadEntryDateAddedKey` associé au fichier malveillant.
 
 ---
 
-## Task 4: What was the timestamp (UTC) of the user's most recent interaction with the malicious file?
+## Tâche 4 : Quel était le timestamp (UTC) de la dernière interaction de l'utilisateur avec le fichier malveillant ?
 
-**Méthode**: Analyse des logs launchd
+**Méthode** : Analyse des logs launchd
 
 ```bash
 grep "nom-de-l-app" private/var/log/com.apple.xpc.launchd/launchd.log*
@@ -59,17 +59,17 @@ Chercher l'événement `WILL_SPAWN`. Les timestamps launchd sont en heure locale
 
 ---
 
-## Task 5: The attacker used a tool to drop files and bypass Gatekeeper. What is the name of the tool used for this technique?
+## Tâche 5 : L'attaquant a utilisé un outil pour déposer des fichiers et contourner Gatekeeper. Quel est le nom de l'outil utilisé ?
 
-**Explication**: Les fichiers téléchargés via certains outils CLI ne reçoivent pas l'attribut `com.apple.quarantine`, ce qui permet de contourner Gatekeeper.
+**Explication** : Les fichiers téléchargés via certains outils CLI ne reçoivent pas l'attribut `com.apple.quarantine`, ce qui permet de contourner Gatekeeper.
 
 Analyser les commandes utilisées par l'attaquant après avoir obtenu un reverse shell.
 
 ---
 
-## Task 6: What is the full file path of the Mach-O executable crafted by the attacker for privilege escalation?
+## Tâche 6 : Quel est le chemin complet de l'exécutable Mach-O créé par l'attaquant pour l'élévation de privilèges ?
 
-**Méthode**: Rechercher les exécutables Mach-O dans la Trash ou sur le Desktop
+**Méthode** : Rechercher les exécutables Mach-O dans la Corbeille ou sur le Bureau
 
 ```bash
 file Users/irek/.Trash/*
@@ -78,17 +78,17 @@ file Users/irek/Desktop/*
 
 ---
 
-## Task 7: What is the CVE number associated with the exploit leveraged by the attacker?
+## Tâche 7 : Quel est le numéro CVE associé à l'exploit utilisé par l'attaquant ?
 
-**Méthode**: Analyser le code source de l'exploit (fichier .c) présent dans la Trash
+**Méthode** : Analyser le code source de l'exploit (fichier .c) présent dans la Corbeille
 
 Rechercher les fonctions caractéristiques et les commentaires qui peuvent indiquer la CVE exploitée. Il s'agit d'une race condition dans le kernel macOS.
 
 ---
 
-## Task 8: During the privilege escalation phase, the attacker mimicked the use of a well-known system file by altering a specific word in its configuration. What is the specific word that was changed?
+## Tâche 8 : Durant la phase d'élévation de privilèges, l'attaquant a imité l'utilisation d'un fichier système bien connu en modifiant un mot spécifique dans sa configuration. Quel est le mot qui a été modifié ?
 
-**Méthode**: Comparer le fichier PAM original avec le fichier modifié par l'attaquant
+**Méthode** : Comparer le fichier PAM original avec le fichier modifié par l'attaquant
 
 ```bash
 diff /etc/pam.d/su Users/irek/.Trash/overwrite_file.bin
@@ -98,22 +98,22 @@ Chercher quel module PAM a été modifié pour permettre une élévation de priv
 
 ---
 
-## Task 9: After gaining root privilege, the attacker created a new user. When did he create that user (UTC)?
+## Tâche 9 : Après avoir obtenu les privilèges root, l'attaquant a créé un nouvel utilisateur. Quand a-t-il créé cet utilisateur (UTC) ?
 
-**Méthode**: Analyse des Unified Logs
+**Méthode** : Analyse des Unified Logs
 
 ```bash
 log show --archive "UnifiedLogs/ireks-Mac_20250308_160413.logarchive" \
   --predicate "eventMessage contains \"loki\"" --style compact
 ```
 
-Chercher l'événement "Creating home directory". Conversion timezone: local (EET) - 2h = UTC.
+Chercher l'événement "Creating home directory". Conversion timezone : local (EET) - 2h = UTC.
 
 ---
 
-## Task 10: At what point did the attacker successfully enable SSH on the system (UTC)?
+## Tâche 10 : À quel moment l'attaquant a-t-il réussi à activer SSH sur le système (UTC) ?
 
-**Méthode**: Analyse des Unified Logs et launchd
+**Méthode** : Analyse des Unified Logs et launchd
 
 ```bash
 log show --archive "UnifiedLogs/..." --predicate "eventMessage contains \"ssh\"" --style compact
@@ -124,9 +124,9 @@ Chercher l'événement "Enabling service com.openssh.sshd" (succès de launchctl
 
 ---
 
-## Task 11: The user noticed unusual activity and shut down the device. A day after, he turned on his laptop. At what time (UTC) did he turn on his laptop?
+## Tâche 11 : L'utilisateur a remarqué une activité inhabituelle et a éteint l'appareil. Un jour après, il a rallumé son ordinateur portable. À quelle heure (UTC) l'a-t-il rallumé ?
 
-**Méthode**: Analyse du system.log et des Unix timestamps ASL
+**Méthode** : Analyse du system.log et des Unix timestamps ASL
 
 ```bash
 grep "BOOT_TIME" private/var/log/system.log
@@ -136,9 +136,9 @@ Le timestamp Unix après BOOT_TIME est déjà en UTC.
 
 ---
 
-## Task 12: After enabling SSH, the attacker successfully established an SSH connection when the user turned on their machine. At what specific time (UTC) did the attacker establish the SSH connection?
+## Tâche 12 : Après avoir activé SSH, l'attaquant a réussi à établir une connexion SSH quand l'utilisateur a rallumé sa machine. À quelle heure précise (UTC) l'attaquant a-t-il établi la connexion SSH ?
 
-**Méthode**: Analyse des logs ASL et system.log
+**Méthode** : Analyse des logs ASL et system.log
 
 ```bash
 grep "sshd.*loki" private/var/log/system.log
@@ -147,22 +147,22 @@ strings private/var/log/asl/*.asl | grep -E "sshd|loki"
 
 ---
 
-## Task 13: The attacker downloaded and dropped a malicious file onto the system to establish persistence. What is the name of this malicious file?
+## Tâche 13 : L'attaquant a téléchargé et déposé un fichier malveillant sur le système pour établir la persistance. Quel est le nom de ce fichier malveillant ?
 
-**Méthode**: Analyse du dossier de l'utilisateur malveillant dans le DMG
+**Méthode** : Analyse du dossier de l'utilisateur malveillant dans le DMG
 
 ```bash
 hdiutil attach Users/Deleted-Users/loki.dmg -readonly
 ls -la /Volumes/loki/Desktop/
 ```
 
-Comparer les hash MD5 avec les fichiers de persistence.
+Comparer les hash MD5 avec les fichiers de persistance.
 
 ---
 
-## Task 14: The malicious file created a specific file to ensure the malware runs every time the user logs in. What is the name of this file?
+## Tâche 14 : Le fichier malveillant a créé un fichier spécifique pour s'assurer que le malware s'exécute à chaque connexion de l'utilisateur. Quel est le nom de ce fichier ?
 
-**Méthode**: Montage du DMG et analyse des LaunchAgents
+**Méthode** : Montage du DMG et analyse des LaunchAgents
 
 ```bash
 hdiutil attach Users/Deleted-Users/loki.dmg -readonly
@@ -171,9 +171,9 @@ ls /Volumes/loki/Library/LaunchAgents/
 
 ---
 
-## Task 15: The file points to an executable that runs upon user login. What is the full path of this executable file?
+## Tâche 15 : Le fichier pointe vers un exécutable qui s'exécute à la connexion de l'utilisateur. Quel est le chemin complet de ce fichier exécutable ?
 
-**Méthode**: Lecture du plist de persistence
+**Méthode** : Lecture du plist de persistance
 
 ```bash
 plutil -convert xml1 -o - /Volumes/loki/Library/LaunchAgents/*.plist
@@ -183,17 +183,17 @@ Chercher la clé `ProgramArguments`.
 
 ---
 
-## Task 16: What is the MITRE ATT&CK technique ID associated with the persistence mechanism used by the attacker?
+## Tâche 16 : Quel est l'ID de technique MITRE ATT&CK associé au mécanisme de persistance utilisé par l'attaquant ?
 
-**Méthode**: Identifier le mécanisme de persistence (LaunchAgent) et chercher la technique MITRE correspondante.
+**Méthode** : Identifier le mécanisme de persistance (LaunchAgent) et chercher la technique MITRE correspondante.
 
 Les LaunchAgents sont documentés dans la matrice ATT&CK sous "Create or Modify System Process".
 
 ---
 
-## Task 17: Based on the analysis of the malicious file and its persistence mechanism, what is the most prevalent malware family associated with this attack?
+## Tâche 17 : Basé sur l'analyse du fichier malveillant et de son mécanisme de persistance, quelle est la famille de malware la plus répandue associée à cette attaque ?
 
-**Méthode**: Analyser les strings du binaire malveillant
+**Méthode** : Analyser les strings du binaire malveillant
 
 ```bash
 strings /Volumes/loki/.local/bin/sysetmd | grep -i "kbr\|whatismyip\|icanhazip"
@@ -203,9 +203,9 @@ Rechercher les indicateurs caractéristiques (extensions de fichiers, services I
 
 ---
 
-## Task 18: The legitimate user noticed and deleted the unauthorized account created by the attacker. When did the user delete the attacker-created account (UTC)?
+## Tâche 18 : L'utilisateur légitime a remarqué et supprimé le compte non autorisé créé par l'attaquant. Quand l'utilisateur a-t-il supprimé le compte créé par l'attaquant (UTC) ?
 
-**Méthode**: Analyse des logs launchd et de l'historique Safari
+**Méthode** : Analyse des logs launchd et de l'historique Safari
 
 ```bash
 # Recherches de l'utilisateur
@@ -217,7 +217,7 @@ sqlite3 "Users/irek/Library/Safari/History.db" \
 grep "writeconfig\|user/502" private/var/log/com.apple.xpc.launchd/launchd.log*
 ```
 
-Sur macOS, la suppression d'un utilisateur via System Preferences archive automatiquement le home directory en DMG.
+Sur macOS, la suppression d'un utilisateur via Préférences Système archive automatiquement le répertoire home en DMG.
 
 ---
 
@@ -231,12 +231,12 @@ Sur macOS, la suppression d'un utilisateur via System Preferences archive automa
 | System Log | `/private/var/log/system.log` | Log système général |
 | ASL Logs | `/private/var/log/asl/` | Apple System Logs (format binaire) |
 
-### Persistence
+### Persistance
 | Artefact | Chemin | Description |
 |----------|--------|-------------|
-| LaunchAgents (User) | `~/Library/LaunchAgents/` | Persistence au login utilisateur |
-| LaunchAgents (System) | `/Library/LaunchAgents/` | Persistence pour tous les utilisateurs |
-| LaunchDaemons | `/Library/LaunchDaemons/` | Services système au boot |
+| LaunchAgents (utilisateur) | `~/Library/LaunchAgents/` | Persistance à la connexion utilisateur |
+| LaunchAgents (système) | `/Library/LaunchAgents/` | Persistance pour tous les utilisateurs |
+| LaunchDaemons | `/Library/LaunchDaemons/` | Services système au démarrage |
 
 ### Historique utilisateur
 | Artefact | Chemin | Description |
@@ -284,15 +284,15 @@ python3 -c "import datetime; print(datetime.datetime.utcfromtimestamp(TIMESTAMP)
 
 ---
 
-## Notes importantes sur les timezones macOS - (Ca peut vous rendre chèvre)
+## Notes importantes sur les fuseaux horaires macOS (ça peut rendre chèvre)
 
-- **Timezone du système**: EET (Eastern European Time) = UTC+2
-- **Launchd logs**: Timestamps en heure LOCALE (nécessite conversion -2h pour UTC)
-- **Unified logs**: Timestamps en heure LOCALE avec indicateur de timezone (+0200)
-- **Safari History DB**: Timestamps stockés en UTC (Cocoa epoch + 978307200)
-- **ASL logs**: Timestamps Unix (déjà en UTC)
-- **system.log**: Timestamps en heure LOCALE
+- **Fuseau horaire du système** : EET (Eastern European Time) = UTC+2
+- **Launchd logs** : Timestamps en heure LOCALE (nécessite conversion -2h pour UTC)
+- **Unified logs** : Timestamps en heure LOCALE avec indicateur de fuseau horaire (+0200)
+- **Safari History DB** : Timestamps stockés en UTC (Cocoa epoch + 978307200)
+- **ASL logs** : Timestamps Unix (déjà en UTC)
+- **system.log** : Timestamps en heure LOCALE
 
-**Formule de conversion**: `UTC = Local Time - 2 heures` (pour EET)
+**Formule de conversion** : `UTC = Heure locale - 2 heures` (pour EET)
 
 ---

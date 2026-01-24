@@ -1,10 +1,10 @@
-# CTF Resources
+# Ressources CTF
 
 Liens utiles pour les CTF et le pentesting.
 
 ---
 
-## Cheatsheets & Références
+## Aide-mémoires et références
 
 ### GTFOBins
 **https://gtfobins.github.io/**
@@ -32,9 +32,9 @@ Cheatsheets classiques : reverse shells, SQL injection, etc.
 
 ---
 
-## Privilège Escalation
+## Élévation de privilèges
 
-### Linux Privilege Escalation
+### Élévation de privilèges Linux
 **https://github.com/carlospolop/PEASS-ng**
 LinPEAS/WinPEAS - Scripts d'énumération automatique. Déjà inclus dans ce toolkit.
 
@@ -47,7 +47,7 @@ Alternative à LinPEAS, plus léger.
 **https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/**
 Article de référence sur la privesc Linux.
 
-### Windows Privilege Escalation
+### Élévation de privilèges Windows
 **https://github.com/itm4n/PrivescCheck**
 Script PowerShell d'énumération Windows.
 
@@ -62,7 +62,7 @@ Checklist privesc Windows.
 
 ---
 
-## Web Exploitation
+## Exploitation web
 
 ### PortSwigger Web Security Academy
 **https://portswigger.net/web-security**
@@ -86,7 +86,7 @@ Décodeur et debugger de JSON Web Tokens.
 
 ---
 
-## Reverse Engineering & Binary Exploitation
+## Rétro-ingénierie et exploitation de binaires
 
 ### Ghidra
 **https://ghidra-sre.org/**
@@ -130,7 +130,7 @@ Outils de cryptanalyse en ligne.
 
 ---
 
-## Forensics & Stéganographie
+## Forensique et stéganographie
 
 ### Autopsy
 **https://www.autopsy.com/**
@@ -180,7 +180,7 @@ Archives de pages web.
 
 ## Active Directory
 
-### AD Attack/Defense Cheatsheet
+### Aide-mémoire attaque/défense AD
 **https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet**
 Cheatsheet complète pour l'exploitation AD.
 
@@ -202,7 +202,7 @@ Outil C# pour manipuler Kerberos.
 
 ---
 
-## Outils Essentiels
+## Outils essentiels
 
 ### Burp Suite
 **https://portswigger.net/burp**
@@ -239,7 +239,7 @@ Poisoning LLMNR/NBT-NS/MDNS.
 
 ---
 
-## CTF Platforms (pour s'entraîner)
+## Plateformes CTF (pour s'entraîner)
 
 ### HackTheBox
 **https://www.hackthebox.com/**
@@ -271,7 +271,7 @@ Calendrier des CTF et classements.
 
 ---
 
-## Wordlists
+## Listes de mots
 
 ### SecLists
 **https://github.com/danielmiessler/SecLists**
@@ -290,7 +290,7 @@ Wordlists modernes générées à partir de données réelles.
 
 ---
 
-## Reverse Shells Generators
+## Générateurs de reverse shells
 
 ### RevShells
 **https://www.revshells.com/**

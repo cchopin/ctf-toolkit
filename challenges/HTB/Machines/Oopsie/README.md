@@ -42,7 +42,7 @@ Cette page présente un formulaire de connexion.
 
 ---
 
-## Accès Initial
+## Accès initial
 
 ### Bypass de l'authentification via IDOR
 
@@ -97,7 +97,7 @@ export TERM=xterm
 stty raw -echo && fg
 ```
 
-### User Flag
+### User flag
 
 Le flag utilisateur est lisible directement par www-data :
 
@@ -108,7 +108,7 @@ cat /home/robert/user.txt
 
 ---
 
-## Mouvement Latéral
+## Mouvement latéral
 
 ### Découverte de credentials
 
@@ -138,7 +138,7 @@ ssh robert@10.129.95.191
 
 ---
 
-## Escalade de Privilèges
+## Escalade de privilèges
 
 ### Énumération des fichiers SUID
 
@@ -174,7 +174,7 @@ Le binaire est **SUID root** (`s` dans les permissions). Peu importe quel utilis
 
 Le binaire appelle `cat` **sans chemin absolu** pour lire des fichiers dans `/root/reports/`. C'est une vulnérabilité de PATH hijacking.
 
-### PATH Hijacking
+### PATH hijacking
 
 1. **Modifier le PATH** pour inclure notre répertoire en premier :
 
@@ -219,7 +219,7 @@ Le flag `-p` préserve les privilèges effectifs (EUID root).
 
 ---
 
-## Leçons Apprises
+## À retenir
 
 1. **IDOR (Insecure Direct Object Reference)** : Toujours vérifier si les ID utilisateur peuvent être énumérés/modifiés.
 
@@ -237,7 +237,7 @@ Le flag `-p` préserve les privilèges effectifs (EUID root).
 
 ---
 
-## Réponses aux Questions HTB
+## Réponses aux questions HTB
 
 | # | Question | Réponse |
 |---|----------|---------|

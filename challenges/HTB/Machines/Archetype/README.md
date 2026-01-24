@@ -55,7 +55,7 @@ Le partage `backups` est accessible sans authentification.
 
 ---
 
-## Accès Initial
+## Accès initial
 
 ### Exploration du partage SMB
 
@@ -147,7 +147,7 @@ EXEC xp_cmdshell 'whoami';
 archetype\sql_svc
 ```
 
-### Flag User
+### Flag user
 
 ```sql
 xp_cmdshell type C:\Users\sql_svc\Desktop\user.txt
@@ -159,7 +159,7 @@ xp_cmdshell type C:\Users\sql_svc\Desktop\user.txt
 
 ---
 
-## Escalade de Privilèges
+## Escalade de privilèges
 
 ### Énumération avec WinPEAS
 
@@ -208,9 +208,9 @@ net.exe use T: \\Archetype\backups /user:administrator **REDACTED**
 
 ---
 
-## Obtention du Root
+## Obtention du root
 
-### Connexion en tant qu'Administrateur
+### Connexion en tant qu'administrateur
 
 Avec `psexec.py` d'Impacket :
 
@@ -224,7 +224,7 @@ Alternative avec Evil-WinRM (le port 5985 est ouvert) :
 evil-winrm -i <TARGET_IP> -u administrator -p '<PASSWORD>'
 ```
 
-### Flag Root
+### Flag root
 
 ```cmd
 type C:\Users\Administrator\Desktop\root.txt

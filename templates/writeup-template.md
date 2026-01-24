@@ -1,9 +1,9 @@
-# [Challenge Name]
+# [Nom du challenge]
 
-**Platform:** HTB / THM / RootMe / Other
-**Difficulty:** Easy / Medium / Hard / Insane
-**Category:** Web / Pwn / Crypto / Forensics / Reverse / Misc
-**Date:** YYYY-MM-DD
+**Plateforme :** HTB / THM / RootMe / Autre
+**Difficulté :** Facile / Moyen / Difficile / Extrême
+**Catégorie :** Web / Pwn / Crypto / Forensique / Reverse / Misc
+**Date :** AAAA-MM-JJ
 
 ## Description
 
@@ -17,7 +17,7 @@
 
 
 
-## Privilege Escalation (if applicable)
+## Élévation de privilèges (si applicable)
 
 
 
@@ -27,6 +27,6 @@
 FLAG{...}
 ```
 
-## Lessons Learned
+## À retenir
 
 -

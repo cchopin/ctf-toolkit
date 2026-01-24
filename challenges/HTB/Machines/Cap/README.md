@@ -1,34 +1,34 @@
-# Cap - HackTheBox Writeup
+# Cap - Write-up HackTheBox
 
 ![HTB Cap](https://img.shields.io/badge/HackTheBox-Cap-green)
 ![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)
 ![OS](https://img.shields.io/badge/OS-Linux-blue)
 
-## Box Info
+## Informations
 
-| Property | Value |
-|----------|-------|
-| Name | Cap |
+| Propriété | Valeur |
+|-----------|--------|
+| Nom | Cap |
 | OS | Linux |
-| Difficulty | Easy |
-| Release | 2021 |
+| Difficulté | Facile |
+| Sortie | 2021 |
 | IP | 10.129.45.142 |
 
 ---
 
-## Summary
+## Résumé
 
-1. **Recon** : 3 ports ouverts (FTP, SSH, HTTP)
+1. **Reconnaissance** : 3 ports ouverts (FTP, SSH, HTTP)
 2. **IDOR** : Accès aux captures réseau d'autres utilisateurs via `/data/0`
-3. **Credentials** : Extraction de credentials FTP en clair dans un fichier PCAP
-4. **Lateral Movement** : Réutilisation des credentials sur SSH
-5. **Privesc** : Exploitation de capabilities Python (`cap_setuid`)
+3. **Identifiants** : Extraction d'identifiants FTP en clair dans un fichier PCAP
+4. **Mouvement latéral** : Réutilisation des identifiants sur SSH
+5. **Élévation de privilèges** : Exploitation de capabilities Python (`cap_setuid`)
 
 ---
 
 ## Reconnaissance
 
-### Nmap Scan
+### Nmap scan
 
 ```bash
 nmap -sC -sV -T4 10.129.45.142
@@ -43,7 +43,7 @@ PORT   STATE SERVICE VERSION
 
 **3 ports ouverts** : FTP (21), SSH (22), HTTP (80)
 
-### Web Enumeration
+### Énumération web
 
 En naviguant sur le site web, on découvre une application de "Security Dashboard" permettant de créer des "Security Snapshots" (captures réseau).
 
@@ -70,28 +70,28 @@ Le fichier `/data/0` contient une capture PCAP avec des données sensibles.
 Téléchargement et analyse avec Wireshark :
 
 ```bash
-# Filtre pour voir les credentials FTP
+# Filtre pour voir les identifiants FTP
 ftp.request.command == "USER" || ftp.request.command == "PASS"
 ```
 
 Ou via **Follow TCP Stream** sur le trafic FTP.
 
-**Credentials trouvés :**
+**Identifiants trouvés :**
 ```
 USER nathan
 PASS Buck3tH4TF0RM3!
 ```
 
-### Accès Initial (SSH)
+### Accès initial (SSH)
 
-Les credentials FTP fonctionnent également sur SSH :
+Les identifiants FTP fonctionnent également sur SSH :
 
 ```bash
 ssh nathan@10.129.45.142
 # Password: Buck3tH4TF0RM3!
 ```
 
-### User Flag
+### User flag
 
 ```bash
 nathan@cap:~$ cat user.txt
@@ -100,9 +100,9 @@ nathan@cap:~$ cat user.txt
 
 ---
 
-## Privilege Escalation
+## Élévation de privilèges
 
-### Enumeration
+### Énumération
 
 Recherche de binaires avec des capabilities spéciales :
 
@@ -131,18 +131,18 @@ root@cap:~# cat /root/root.txt
 
 ---
 
-## Lessons Learned
+## À retenir
 
-| Vulnerability | Description | Remediation |
+| Vulnérabilité | Description | Remédiation |
 |---------------|-------------|-------------|
 | **IDOR** | Accès aux ressources d'autres utilisateurs via manipulation d'ID | Implémenter des contrôles d'autorisation côté serveur |
-| **Cleartext Credentials** | Credentials FTP transmis en clair | Utiliser SFTP ou FTPS |
-| **Password Reuse** | Même mot de passe pour FTP et SSH | Utiliser des mots de passe uniques par service |
-| **Dangerous Capabilities** | Python avec cap_setuid | Auditer les capabilities avec `getcap -r /` |
+| **Identifiants en clair** | Identifiants FTP transmis en clair | Utiliser SFTP ou FTPS |
+| **Réutilisation de mot de passe** | Même mot de passe pour FTP et SSH | Utiliser des mots de passe uniques par service |
+| **Capabilities dangereuses** | Python avec cap_setuid | Auditer les capabilities avec `getcap -r /` |
 
 ---
 
-## Tools Used
+## Outils utilisés
 
 - nmap
 - Wireshark
@@ -150,7 +150,7 @@ root@cap:~# cat /root/root.txt
 
 ---
 
-## References
+## Références
 
 - [GTFOBins - Capabilities](https://gtfobins.github.io/#+capabilities)
 - [HackTricks - Linux Capabilities](https://book.hacktricks.wiki/linux-hardening/privilege-escalation/linux-capabilities)

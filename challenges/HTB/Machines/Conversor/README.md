@@ -2,15 +2,6 @@
 
 ![HTB Conversor](https://img.shields.io/badge/HackTheBox-Conversor-green)![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)![OS](https://img.shields.io/badge/OS-Linux-blue)
 
-## Flags
-
-| Flag | Hash |
-|------|------|
-| User | `cfa738a0c123cdcbe44b82bdb04118bc` |
-| Root | `f3eaeb6fba5f932ad2a1f4f2e41bbd3a` |
-
----
-
 ## Reconnaissance
 
 ### Nmap scan
@@ -129,8 +120,8 @@ sqlite3 /var/www/conversor.htb/instance/users.db "SELECT * FROM users;"
 ```
 
 ```
-1|fismathack|5b5c3ac3a1c897c94caad48e6c71fdec
-5|tely|0af84df18f888bf5e60b9a63b61ff937
+1|fismathack|<MD5_HASH>
+5|tely|<MD5_HASH>
 ```
 
 ### Cassage du hash MD5

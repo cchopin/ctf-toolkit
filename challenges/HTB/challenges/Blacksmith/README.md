@@ -16,17 +16,19 @@
 ## Table des matières
 
 1. [Introduction pour les débutants](#introduction-pour-les-débutants)
-2. [Outils nécessaires](#outils-nécessaires)
-3. [Étape 1 : Reconnaissance du fichier](#étape-1--reconnaissance-du-fichier)
-4. [Étape 2 : Analyse des chaînes de caractères](#étape-2--analyse-des-chaînes-de-caractères)
-5. [Étape 3 : Identifier les fonctions](#étape-3--identifier-les-fonctions)
-6. [Étape 4 : Désassembler le programme](#étape-4--désassembler-le-programme)
-7. [Étape 5 : Trouver la vulnérabilité](#étape-5--trouver-la-vulnérabilité)
-8. [Étape 6 : Comprendre les restrictions seccomp](#étape-6--comprendre-les-restrictions-seccomp)
-9. [Étape 7 : Écrire le shellcode](#étape-7--écrire-le-shellcode)
-10. [Étape 8 : Debugger et corriger](#étape-8--debugger-et-corriger)
-11. [Étape 9 : Exploit final](#étape-9--exploit-final)
-12. [Leçons apprises](#leçons-apprises)
+2. [Prérequis et contraintes](#prérequis-et-contraintes)
+3. [Outils nécessaires](#outils-nécessaires)
+4. [Étape 1 : Reconnaissance du fichier](#étape-1--reconnaissance-du-fichier)
+5. [Étape 2 : Analyse des chaînes de caractères](#étape-2--analyse-des-chaînes-de-caractères)
+6. [Étape 3 : Identifier les fonctions](#étape-3--identifier-les-fonctions)
+7. [Étape 4 : Désassembler le programme](#étape-4--désassembler-le-programme)
+8. [Étape 5 : Trouver la vulnérabilité](#étape-5--trouver-la-vulnérabilité)
+9. [Étape 6 : Comprendre les restrictions seccomp](#étape-6--comprendre-les-restrictions-seccomp)
+10. [Crash Course : Assembleur x86-64](#crash-course--assembleur-x86-64-pour-les-nuls)
+11. [Étape 7 : Écrire le shellcode](#étape-7--écrire-le-shellcode)
+12. [Étape 8 : Debugger et corriger](#étape-8--debugger-et-corriger)
+13. [Étape 9 : Exploit final](#étape-9--exploit-final)
+14. [Leçons apprises](#leçons-apprises)
 
 ---
 
@@ -50,24 +52,158 @@ Seccomp (Secure Computing) est une fonctionnalité de sécurité Linux qui limit
 
 ---
 
+## Prérequis et contraintes
+
+### Système d'exploitation
+
+> **IMPORTANT** : Le binaire `blacksmith` est un exécutable **Linux x86-64**. Il ne peut PAS s'exécuter directement sur :
+> - **macOS** (même avec un Mac Intel)
+> - **Windows** (sauf avec WSL)
+> - **Linux ARM** (comme Raspberry Pi)
+
+### Solutions pour exécuter le binaire
+
+| Si tu es sur... | Solution |
+|-----------------|----------|
+| **macOS** | Utiliser Docker avec `--platform linux/amd64`, ou une VM Linux, ou un serveur Linux distant via SSH |
+| **Windows** | Utiliser WSL2 (Windows Subsystem for Linux) ou une VM |
+| **Linux ARM** | Utiliser QEMU ou une VM x86-64 |
+| **Linux x86-64** | Tu peux exécuter directement |
+
+### Pour ce writeup
+
+On utilise :
+- **Machine locale** (macOS) : pour l'analyse statique (`file`, `strings`, `nm`, `objdump`)
+- **Machine distante Linux x86-64** (via SSH) : pour exécuter et tester l'exploit
+- **Serveur HTB** : pour récupérer le vrai flag
+
+---
+
 ## Outils nécessaires
+
+### Installation
 
 ```bash
 # Sur Ubuntu/Debian
-sudo apt install binutils file
+sudo apt update
+sudo apt install binutils file strace netcat
 
-# Pour l'exploit
+# Python et pwntools (pour l'exploit)
 pip3 install pwntools
 ```
 
-| Outil | Utilité |
-|-------|---------|
-| `file` | Identifier le type de fichier |
-| `strings` | Extraire les chaînes de caractères lisibles |
-| `nm` | Lister les symboles/fonctions d'un binaire |
-| `objdump` | Désassembler le code machine |
-| `strace` | Tracer les appels système |
-| `pwntools` | Bibliothèque Python pour l'exploitation |
+### Explication détaillée de chaque outil
+
+#### `file` - Identifier le type de fichier
+
+**C'est quoi ?** Une commande qui analyse les premiers bytes d'un fichier pour déterminer son type (exécutable, image, texte, etc.).
+
+**Pourquoi c'est utile ?** Avant d'analyser un fichier, tu dois savoir à quoi tu as affaire. Un `.exe` Windows ne s'analyse pas comme un binaire Linux.
+
+```bash
+file blacksmith
+# Résultat : ELF 64-bit LSB pie executable, x86-64...
+```
+
+---
+
+#### `strings` - Extraire les chaînes de caractères
+
+**C'est quoi ?** Une commande qui parcourt un fichier binaire et affiche toutes les séquences de caractères lisibles (lettres, chiffres) d'au moins 4 caractères.
+
+**Pourquoi c'est utile ?** Les programmes contiennent souvent des messages d'erreur, des noms de fonctions, des URLs, des chemins de fichiers... Ça donne des indices sur ce que fait le programme.
+
+```bash
+strings blacksmith | head -20
+# Affiche les 20 premières chaînes trouvées
+```
+
+---
+
+#### `nm` - Lister les symboles d'un binaire
+
+**C'est quoi ?** `nm` (pour "name list") est une commande qui affiche la **table des symboles** d'un fichier binaire. Les symboles incluent :
+- Les noms des **fonctions** définies dans le programme
+- Les noms des **variables globales**
+- Les références aux **fonctions externes** (bibliothèques)
+
+**Pourquoi c'est utile ?** Ça te donne une "carte" du programme : quelles fonctions existent, où elles sont situées en mémoire.
+
+**Format de sortie :**
+```
+ADRESSE TYPE NOM
+```
+
+**Les types importants :**
+| Type | Signification |
+|------|---------------|
+| `T` | Fonction définie dans le programme (Text section) |
+| `U` | Fonction externe non définie (importée d'une bibliothèque) |
+| `D` | Variable globale initialisée (Data section) |
+| `B` | Variable globale non initialisée (BSS section) |
+
+```bash
+nm blacksmith | grep " T "
+# Affiche uniquement les fonctions définies dans le programme
+```
+
+---
+
+#### `objdump` - Désassembler le code machine
+
+**C'est quoi ?** Un outil qui convertit le code machine (bytes) en instructions assembleur lisibles. C'est l'inverse de ce que fait un compilateur.
+
+**Pourquoi c'est utile ?** Pour comprendre exactement ce que fait chaque fonction du programme, instruction par instruction.
+
+```bash
+objdump -d -M intel blacksmith | grep -A 50 "<main>:"
+```
+
+**Options importantes :**
+| Option | Effet |
+|--------|-------|
+| `-d` | Désassembler les sections de code |
+| `-M intel` | Utiliser la syntaxe Intel (plus lisible que AT&T) |
+| `grep -A 50 "<main>:"` | Afficher 50 lignes après le début de la fonction `main` |
+
+---
+
+#### `strace` - Tracer les appels système
+
+**C'est quoi ?** Un outil qui intercepte et affiche tous les **syscalls** (appels système) faits par un programme : ouverture de fichiers, lecture/écriture, allocation mémoire, etc.
+
+**Pourquoi c'est utile ?** Pour debugger un exploit et voir exactement ce qui se passe quand le shellcode s'exécute. Si un syscall échoue, `strace` te montre l'erreur.
+
+```bash
+strace ./blacksmith
+# Affiche tous les syscalls en temps réel
+```
+
+> **Note** : `strace` est uniquement disponible sur Linux.
+
+---
+
+#### `pwntools` - Bibliothèque Python d'exploitation
+
+**C'est quoi ?** Une bibliothèque Python spécialement conçue pour le CTF et l'exploitation de binaires. Elle permet de :
+- Se connecter à des services distants (`remote()`)
+- Lancer des processus locaux (`process()`)
+- Envoyer/recevoir des données facilement
+- Assembler du shellcode
+- Et bien plus...
+
+```python
+from pwn import *
+
+# Connexion à un serveur
+p = remote('127.0.0.1', 1337)
+
+# Envoyer des données
+p.sendline(b'hello')
+
+# Recevoir jusqu'à un pattern
+p.recvuntil(b'password:')
+```
 
 ---
 
@@ -105,10 +241,25 @@ for GNU/Linux 3.2.0, not stripped
 
 ## Étape 2 : Analyse des chaînes de caractères
 
+### Rappel : c'est quoi `strings` ?
+
+`strings` parcourt un fichier binaire et extrait toutes les séquences de caractères imprimables (lettres, chiffres, ponctuation) d'au moins 4 caractères par défaut.
+
 ### Commande
 
 ```bash
 strings blacksmith | head -50
+```
+
+**Décomposition :**
+- `strings blacksmith` : extrait toutes les chaînes du binaire
+- `| head -50` : n'affiche que les 50 premières lignes (sinon c'est trop long)
+
+**Variantes utiles :**
+```bash
+strings blacksmith | grep -i flag    # Chercher "flag" (insensible à la casse)
+strings blacksmith | grep -i password # Chercher des mots de passe
+strings -n 10 blacksmith             # Chaînes d'au moins 10 caractères
 ```
 
 ### Résultat (extraits importants)
@@ -139,13 +290,23 @@ What do you want me to craft?
 
 ## Étape 3 : Identifier les fonctions
 
+### Rappel : c'est quoi `nm` ?
+
+`nm` affiche la **table des symboles** d'un binaire. Cette table contient les noms et adresses de toutes les fonctions et variables du programme.
+
+> **Note** : Si le binaire est "stripped" (symboles supprimés), `nm` ne montrera rien d'utile. Heureusement, ce binaire est "not stripped" (on l'a vu avec `file`).
+
 ### Commande
 
 ```bash
 nm blacksmith | grep " T "
 ```
 
-Le flag `T` signifie "Text section" = fonctions définies dans le programme.
+**Décomposition de la commande :**
+- `nm blacksmith` : liste tous les symboles du binaire
+- `| grep " T "` : filtre pour ne garder que les lignes contenant ` T ` (espace-T-espace)
+
+**Pourquoi ` T ` ?** Le `T` (majuscule) indique une fonction définie dans la section "Text" du programme, c'est-à-dire une fonction qui fait partie du code du programme (pas importée d'une bibliothèque).
 
 ### Résultat
 
@@ -158,16 +319,28 @@ Le flag `T` signifie "Text section" = fonctions définies dans le programme.
 0000000000000ca4 T sword
 ```
 
-### Explication
+### Comment lire ce résultat ?
 
-| Fonction | Rôle probable |
-|----------|---------------|
-| `main` | Point d'entrée du programme |
-| `setup` | Initialisation |
-| `sec` | Configuration de seccomp (sécurité) |
-| `sword` | Gère le choix "épée" |
-| `bow` | Gère le choix "arc" |
-| `shield` | Gère le choix "bouclier" |
+```
+0000000000000cfd T bow
+│                │ │
+│                │ └── Nom de la fonction
+│                └──── Type (T = fonction dans le code)
+└─────────────────────  Adresse en mémoire (hexadécimal)
+```
+
+### Analyse des fonctions trouvées
+
+| Fonction | Adresse | Rôle probable (basé sur le nom) |
+|----------|---------|--------------------------------|
+| `main` | 0xdfb | Point d'entrée du programme |
+| `setup` | 0xb4a | Initialisation (probablement configure stdin/stdout) |
+| `sec` | 0xbb4 | "Security" - Configuration de seccomp |
+| `sword` | 0xca4 | Gère le choix "épée" du menu |
+| `bow` | 0xcfd | Gère le choix "arc" du menu |
+| `shield` | 0xd56 | Gère le choix "bouclier" du menu |
+
+**Observation importante** : Les fonctions `sword`, `bow`, `shield` correspondent aux 3 choix du menu qu'on a vu dans les strings. Une de ces fonctions contient probablement la vulnérabilité.
 
 ---
 
@@ -249,7 +422,7 @@ shield:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    CE QUI SE PASSE                       │
+│                    CE QUI SE PASSE                      │
 ├─────────────────────────────────────────────────────────┤
 │  1. Le programme lit 63 bytes de notre entrée           │
 │  2. Il stocke ces bytes dans un buffer                  │
@@ -314,6 +487,185 @@ Puisqu'on peut faire `open`, `read` et `write`, on va :
 2. read(fd, buffer)  → Lire le contenu du flag
 3. write(stdout, buffer) → Afficher le flag
 ```
+
+---
+
+## Crash Course : Assembleur x86-64 pour les nuls
+
+> **Pas de panique !** Tu n'as pas besoin de tout comprendre pour résoudre ce challenge. Cette section t'explique juste les bases pour comprendre le shellcode qu'on va écrire.
+
+### C'est quoi l'assembleur ?
+
+L'assembleur est le langage le plus proche du processeur. Chaque instruction correspond à une opération simple que le CPU sait faire : déplacer une valeur, additionner, comparer, etc.
+
+```
+Code C           →  Compilateur  →  Assembleur      →  Code machine (bytes)
+int x = 5;                          mov eax, 5          B8 05 00 00 00
+```
+
+### Les registres : la mémoire ultra-rapide du CPU
+
+Les registres sont des petites cases mémoire **à l'intérieur** du processeur. C'est là que se font tous les calculs.
+
+**Les registres généraux en x86-64 :**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  64 bits (8 bytes)                                          │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │                        RAX                             │ │  ← Registre complet
+│  └────────────────────────────────────────────────────────┘ │
+│                                  ┌────────────────────────┐ │
+│                                  │         EAX            │ │  ← 32 bits bas
+│                                  └────────────────────────┘ │
+│                                              ┌────────────┐ │
+│                                              │     AX     │ │  ← 16 bits bas
+│                                              └────────────┘ │
+│                                              ┌─────┬──────┐ │
+│                                              │ AH  │  AL  │ │  ← 8 bits (haut/bas)
+│                                              └─────┴──────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Liste des registres principaux :**
+
+| 64-bit | 32-bit | 16-bit | 8-bit | Usage courant |
+|--------|--------|--------|-------|---------------|
+| `rax` | `eax` | `ax` | `al` | Valeur de retour, calculs |
+| `rbx` | `ebx` | `bx` | `bl` | Usage général |
+| `rcx` | `ecx` | `cx` | `cl` | Compteur de boucles |
+| `rdx` | `edx` | `dx` | `dl` | Données, 3ème argument syscall |
+| `rsi` | `esi` | `si` | `sil` | Source, 2ème argument syscall |
+| `rdi` | `edi` | `di` | `dil` | Destination, 1er argument syscall |
+| `rsp` | `esp` | `sp` | `spl` | Pointeur de pile (stack) |
+| `rbp` | `ebp` | `bp` | `bpl` | Base de la pile |
+
+### Les instructions de base
+
+#### `mov` - Déplacer/Copier une valeur
+
+```asm
+mov rax, 5          ; rax = 5
+mov rax, rbx        ; rax = rbx (copie rbx dans rax)
+mov rax, [rbx]      ; rax = valeur à l'adresse pointée par rbx
+mov al, 5           ; ATTENTION: ne modifie QUE le byte bas de rax !
+```
+
+#### `xor` - OU exclusif (utilisé pour mettre à zéro)
+
+```asm
+xor eax, eax        ; eax = 0 (n'importe quelle valeur XOR elle-même = 0)
+                    ; Plus court que "mov eax, 0" (2 bytes vs 5 bytes)
+```
+
+**Pourquoi `xor eax, eax` au lieu de `mov eax, 0` ?**
+- `xor eax, eax` = 2 bytes
+- `mov eax, 0` = 5 bytes
+- En shellcode, chaque byte compte !
+
+#### `push` et `pop` - Manipuler la pile (stack)
+
+La pile est une zone mémoire qui fonctionne comme une pile d'assiettes : on pose dessus (push) et on retire du dessus (pop).
+
+```asm
+push rax            ; Met rax sur la pile, rsp diminue de 8
+pop rbx             ; Retire le sommet de la pile dans rbx, rsp augmente de 8
+
+push 0x41           ; Met la valeur 0x41 sur la pile
+```
+
+**Schéma de la pile :**
+
+```
+Avant push rax:          Après push rax:
+                         ┌─────────────┐
+                         │ valeur rax  │ ← rsp (nouveau sommet)
+┌─────────────┐          ├─────────────┤
+│   données   │ ← rsp    │   données   │
+├─────────────┤          ├─────────────┤
+│     ...     │          │     ...     │
+└─────────────┘          └─────────────┘
+```
+
+#### `syscall` - Appeler le système d'exploitation
+
+```asm
+syscall             ; Exécute l'appel système
+                    ; Le numéro du syscall doit être dans rax
+                    ; Les arguments dans rdi, rsi, rdx, r10, r8, r9
+                    ; Le résultat est retourné dans rax
+```
+
+#### `xchg` - Échanger deux valeurs
+
+```asm
+xchg eax, edi       ; Échange les valeurs de eax et edi
+                    ; Équivalent à : tmp=eax; eax=edi; edi=tmp
+                    ; Mais en 1 seul byte !
+```
+
+#### `lea` - Charger une adresse
+
+```asm
+lea rax, [rbp-0x50] ; rax = adresse de (rbp - 0x50)
+                    ; NE lit PAS la mémoire, juste calcule l'adresse
+```
+
+#### `sub` et `add` - Soustraction et addition
+
+```asm
+sub rsp, 80         ; rsp = rsp - 80 (réserve 80 bytes sur la pile)
+add rax, 5          ; rax = rax + 5
+```
+
+#### `cmp` et `je/jne` - Comparer et sauter
+
+```asm
+cmp eax, 1          ; Compare eax avec 1 (eax - 1, sans stocker le résultat)
+je label            ; Jump if Equal : saute à "label" si eax == 1
+jne label           ; Jump if Not Equal : saute si eax != 1
+```
+
+### Résumé des instructions utilisées dans notre shellcode
+
+| Instruction | Effet | Exemple |
+|-------------|-------|---------|
+| `xor eax, eax` | Met eax à 0 | Réinitialiser un registre |
+| `push rax` | Empile rax | Mettre une valeur sur la stack |
+| `pop rdi` | Dépile dans rdi | Récupérer une valeur |
+| `mov al, 2` | Met 2 dans le byte bas de rax | Numéro de syscall |
+| `syscall` | Appel système | Exécuter open/read/write |
+| `xchg edi, eax` | Échange edi et eax | Transférer le résultat |
+| `sub rsp, 80` | Réserve 80 bytes | Créer un buffer |
+
+### Ressources pour apprendre l'assembleur
+
+> **Liens accessibles, pas de documentation hardcore !**
+
+| Ressource | Description | Lien |
+|-----------|-------------|------|
+| **x86-64 Assembly Tutorial** | Tutoriel interactif pour débutants | [cs.lmu.edu/~ray/notes/x86assembly](https://cs.lmu.edu/~ray/notes/x86assembly/) |
+| **Compiler Explorer** | Tape du C, vois l'assembleur généré en direct | [godbolt.org](https://godbolt.org/) |
+| **Syscall Table** | Liste de tous les syscalls Linux x86-64 | [syscalls.w3challs.com](https://syscalls.w3challs.com/?arch=x86_64) |
+| **Shell-storm Shellcodes** | Base de données de shellcodes existants | [shell-storm.org/shellcode](http://shell-storm.org/shellcode/) |
+| **x64 Cheat Sheet** | Résumé PDF d'une page | [cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf](https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf) |
+| **Nightmare** | Cours CTF/Pwn complet et gratuit | [guyinatuxedo.github.io](https://guyinatuxedo.github.io/) |
+| **pwn.college** | Cours interactif Arizona State University | [pwn.college](https://pwn.college/) |
+
+### Le piège classique : `mov al` vs `xor eax + mov al`
+
+C'est LE bug qu'on a rencontré dans ce challenge :
+
+```asm
+;  FAUX - Si rax contenait 0x7478742e67616c66 ("flag.txt")
+mov al, 2           ; rax = 0x7478742e67616c02  (seul le byte bas change !)
+
+;  CORRECT
+xor eax, eax        ; rax = 0x0000000000000000
+mov al, 2           ; rax = 0x0000000000000002
+```
+
+**Règle d'or** : Toujours `xor eax, eax` avant `mov al, N` si tu veux que rax soit exactement N.
 
 ---
 
@@ -625,4 +977,3 @@ mov al, 2
 
 ---
 
-*Writeup rédigé après résolution du challenge HTB Blacksmith*

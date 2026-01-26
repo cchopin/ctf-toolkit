@@ -1,8 +1,15 @@
-# Blacksmith - Hack The Box (Pwn)
+# Blacksmith - Write-up HackTheBox
 
-**Difficulté** : Easy
-**Catégorie** : Pwn (Binary Exploitation)
-**Flag** : `HTB{s3cc0mp_1s_t00_s3cur3}`
+![HTB Blacksmith](https://img.shields.io/badge/HackTheBox-Blacksmith-green)![Difficulty](https://img.shields.io/badge/Difficulty-Easy-brightgreen)![Category](https://img.shields.io/badge/Category-Pwn-red)
+
+## Résumé
+
+| Info | Valeur |
+|------|--------|
+| **Flag** | `HTB{s3cc0mp_1s_t00_s3cur3}` |
+| **Vulnérabilité** | Shellcode execution dans `shield()` |
+| **Contrainte** | Seccomp limite les syscalls à `open`, `read`, `write`, `exit` |
+| **Technique** | Shellcode "open-read-write" pour lire `flag.txt` |
 
 ---
 

@@ -1,4 +1,4 @@
-# ARM64 (AArch64) Assembly Instructions Cheatsheet
+# ARM64 (AArch64) assembly instructions cheatsheet
 
 ## Caractéristiques ARM64
 
@@ -11,7 +11,7 @@
 
 ## Registres
 
-### Registres Généraux
+### Registres généraux
 
 | 64-bit | 32-bit | Usage AAPCS64                              |
 |--------|--------|-------------------------------------------|
@@ -28,7 +28,7 @@
 | xzr    | wzr    | Zero register (toujours 0)                |
 | pc     | -      | Program counter (non accessible direct)   |
 
-### Registres Spéciaux
+### Registres spéciaux
 
 | Registre | Description                              |
 |----------|------------------------------------------|
@@ -37,7 +37,7 @@
 | xzr/wzr  | Zero register (lecture=0, écriture=NOP)  |
 | NZCV     | Condition flags (dans PSTATE)            |
 
-### Condition Flags (NZCV)
+### Condition flags (NZCV)
 
 | Flag | Nom      | Description                          |
 |------|----------|--------------------------------------|
@@ -48,9 +48,9 @@
 
 ---
 
-## Instructions de Base
+## Instructions de base
 
-### Transfert de Données
+### Transfert de données
 
 | Instruction | Description                        | Exemple                    |
 |-------------|------------------------------------|----------------------------|
@@ -85,7 +85,7 @@ movk x0, #0xdef0, lsl #48   ; x0 = 0xdef09abc56781234
 | ldp         | Load pair                          | `ldp x0, x1, [sp]`         |
 | stp         | Store pair                         | `stp x0, x1, [sp]`         |
 
-### Modes d'Adressage
+### Modes d'adressage
 
 | Mode                    | Syntaxe                  | Effet                          |
 |-------------------------|--------------------------|--------------------------------|
@@ -133,7 +133,7 @@ add x0, x1, w2, sxtw     ; x0 = x1 + sign_extend(w2)
 add x0, x1, w2, uxtw     ; x0 = x1 + zero_extend(w2)
 ```
 
-### Logique et Bits
+### Logique et bits
 
 | Instruction | Description                        | Exemple                    |
 |-------------|------------------------------------|----------------------------|
@@ -171,7 +171,7 @@ add x0, x1, w2, uxtw     ; x0 = x1 + zero_extend(w2)
 | tbz         | Test bit and branch if zero        | `tbz x0, #5, label`        |
 | tbnz        | Test bit and branch if not zero    | `tbnz x0, #5, label`       |
 
-### Branches Conditionnelles
+### Branches conditionnelles
 
 | Instruction | Condition              | Flags            |
 |-------------|------------------------|------------------|
@@ -190,7 +190,7 @@ add x0, x1, w2, uxtw     ; x0 = x1 + zero_extend(w2)
 | b.vs        | Overflow set           | V = 1            |
 | b.vc        | Overflow clear         | V = 0            |
 
-### Instructions Conditionnelles
+### Instructions conditionnelles
 
 | Instruction | Description                        | Exemple                    |
 |-------------|------------------------------------|----------------------------|
@@ -221,23 +221,23 @@ csneg x0, x0, x0, ge    ; if (x0 >= 0) x0 = x0 else x0 = -x0
 
 ---
 
-## Patterns Communs
+## Patterns communs
 
-### Prologue de Fonction
+### Prologue de fonction
 ```asm
 stp x29, x30, [sp, #-16]!   ; Push FP et LR, sp -= 16
 mov x29, sp                  ; Set frame pointer
 sub sp, sp, #32              ; Allouer espace local
 ```
 
-### Épilogue de Fonction
+### Épilogue de fonction
 ```asm
 add sp, sp, #32              ; Libérer espace local
 ldp x29, x30, [sp], #16      ; Pop FP et LR, sp += 16
 ret                          ; Return via x30
 ```
 
-### Appel de Fonction
+### Appel de fonction
 ```asm
 mov x0, arg1        ; 1er argument
 mov x1, arg2        ; 2ème argument
@@ -289,16 +289,16 @@ svc #0x80           ; syscall
 
 ---
 
-## Adressage PC-Relative
+## Adressage PC-relative
 
-### ADRP + ADD Pattern
+### ADRP + ADD pattern
 ```asm
 ; Charger l'adresse d'un symbole global
 adrp x0, symbol@PAGE        ; x0 = page contenant symbol
 add x0, x0, symbol@PAGEOFF  ; x0 += offset dans la page
 ```
 
-### LDR Literal
+### LDR literal
 ```asm
 ldr x0, =constant    ; Charge adresse/valeur depuis literal pool
 ldr x0, label        ; Charge depuis PC + offset

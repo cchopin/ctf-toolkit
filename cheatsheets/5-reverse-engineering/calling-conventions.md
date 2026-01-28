@@ -1,6 +1,6 @@
-# Calling Conventions Cheatsheet
+# Calling conventions cheatsheet
 
-## Vue d'Ensemble
+## Vue d'ensemble
 
 Une **calling convention** définit comment les fonctions reçoivent leurs paramètres, retournent leurs valeurs, et quels registres doivent être préservés.
 
@@ -203,9 +203,9 @@ call MessageBoxA  ; Callee fait ret 16
 
 ---
 
-## Tableau Récapitulatif
+## Tableau récapitulatif
 
-### Arguments par Architecture
+### Arguments par architecture
 
 | Arch          | Convention    | Arg1 | Arg2 | Arg3 | Arg4 | Arg5 | Arg6 |
 |---------------|---------------|------|------|------|------|------|------|
@@ -216,7 +216,7 @@ call MessageBoxA  ; Callee fait ret 16
 | ARM64         | AAPCS64       | x0   | x1   | x2   | x3   | x4   | x5   |
 | ARM32         | AAPCS         | r0   | r1   | r2   | r3   | stk  | stk  |
 
-### Valeur de Retour
+### Valeur de retour
 
 | Architecture  | Integer       | Float         | Struct grande    |
 |---------------|---------------|---------------|------------------|
@@ -228,7 +228,7 @@ call MessageBoxA  ; Callee fait ret 16
 
 ---
 
-## Stack Frame Layout
+## Stack frame layout
 
 ### x64 Linux (System V)
 ```
@@ -286,7 +286,7 @@ Low addresses
 
 ---
 
-## Exemples Pratiques
+## Exemples pratiques
 
 ### Appel printf Linux x64
 ```c

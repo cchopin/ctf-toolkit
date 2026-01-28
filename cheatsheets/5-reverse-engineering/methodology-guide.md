@@ -1,4 +1,4 @@
-# Guide Méthodologique - Reverse Engineering
+# Guide méthodologique - Reverse engineering
 
 ## Introduction
 
@@ -14,12 +14,12 @@ Le reverse engineering (RE) consiste à analyser un binaire pour comprendre son 
 
 ---
 
-## Phase 1: Triage et Reconnaissance
+## Phase 1: Triage et reconnaissance
 
 ### Objectif
 Identifier rapidement le type de binaire, son architecture, et ses caractéristiques avant toute analyse approfondie.
 
-### 1.1 Identification du Fichier
+### 1.1 Identification du fichier
 
 ```bash
 # Type de fichier
@@ -39,7 +39,7 @@ binwalk -E binary
 # Entropie haute (>7.5) = probablement packé/chiffré
 ```
 
-### 1.2 Informations Détaillées
+### 1.2 Informations détaillées
 
 ```bash
 # ELF
@@ -59,7 +59,7 @@ otool -l binary                # Load commands
 otool -L binary                # Libraries
 ```
 
-### 1.3 Sécurité et Protections
+### 1.3 Sécurité et protections
 
 ```bash
 # Linux - checksec (pwntools ou checksec.sh)
@@ -74,7 +74,7 @@ die binary                     # Detect It Easy
 rabin2 -I binary              # radare2
 ```
 
-### 1.4 Checklist Triage
+### 1.4 Checklist triage
 
 ```
 [ ] Format: ELF / PE / Mach-O / autre
@@ -89,12 +89,12 @@ rabin2 -I binary              # radare2
 
 ---
 
-## Phase 2: Analyse Statique
+## Phase 2: Analyse statique
 
 ### Objectif
 Comprendre la structure et la logique du programme sans l'exécuter.
 
-### 2.1 Chargement dans un Désassembleur
+### 2.1 Chargement dans un désassembleur
 
 **Cutter (gratuit, recommandé - GUI de radare2)**
 
@@ -140,7 +140,7 @@ pdf                            # Désassembler la fonction courante
 | IDA Pro | $$$$ | Standard industrie |
 | Binary Ninja | $$ | Moderne, bonne API |
 
-### 2.2 Localiser le Point d'Entrée
+### 2.2 Localiser le point d'entrée
 
 ```bash
 # Entry point
@@ -156,7 +156,7 @@ readelf -h binary | grep Entry
 _start → __libc_start_main → main → votre code
 ```
 
-### 2.3 Identifier les Fonctions Clés
+### 2.3 Identifier les fonctions clés
 
 **Recherche par strings:**
 ```bash
@@ -191,7 +191,7 @@ objdump -T binary | grep -E "strcmp|memcmp|crypt|socket|fopen"
 | Mémoire | `malloc`, `free`, `mmap`, `memcpy` |
 | Process | `fork`, `exec`, `system`, `popen` |
 
-### 2.4 Comprendre la Logique
+### 2.4 Comprendre la logique
 
 **Renommer au fur et à mesure:**
 ```
@@ -240,7 +240,7 @@ ja default_case
 jmp [jump_table + rax*8]
 ```
 
-### 2.5 Analyse du Décompilé
+### 2.5 Analyse du décompilé
 
 **Dans Cutter:**
 
@@ -272,12 +272,12 @@ Edit > Preferences > Decompiler
 
 ---
 
-## Phase 3: Analyse Dynamique
+## Phase 3: Analyse dynamique
 
 ### Objectif
 Observer le comportement réel du programme en l'exécutant de manière contrôlée.
 
-### 3.1 Environnement Sécurisé
+### 3.1 Environnement sécurisé
 
 ```bash
 # TOUJOURS analyser dans un environnement isolé!
@@ -290,7 +290,7 @@ docker run -it --rm -v $(pwd):/work ubuntu:22.04
 # Cuckoo, Any.run, VirusTotal
 ```
 
-### 3.2 Exécution Initiale
+### 3.2 Exécution initiale
 
 ```bash
 # Observer le comportement normal
@@ -377,7 +377,7 @@ drr               # Registres avec références
 pxq @ rsp         # Stack
 ```
 
-### 3.5 Techniques Avancées
+### 3.5 Techniques avancées
 
 **Hooking avec Frida:**
 ```bash
@@ -412,9 +412,9 @@ ql.run()
 
 ---
 
-## Phase 4: Techniques Spécifiques
+## Phase 4: Techniques spécifiques
 
-### 4.1 Cracking de Vérification Simple
+### 4.1 Cracking de vérification simple
 
 **Pattern typique:**
 ```c
@@ -448,7 +448,7 @@ if (check_password(input) == 0) {
    set $rax = 1               # Forcer le retour
    ```
 
-### 4.2 Reverse d'Algorithme de Chiffrement
+### 4.2 Reverse d'algorithme de chiffrement
 
 **Étapes:**
 1. Identifier l'algorithme (XOR, AES, custom?)
@@ -492,7 +492,7 @@ run
 dump memory unpacked.bin 0x400000 0x500000
 ```
 
-### 4.4 Analyse de Malware (bases)
+### 4.4 Analyse de malware (bases)
 
 **ATTENTION: Toujours en VM isolée!**
 
@@ -513,9 +513,9 @@ inotifywait -m -r /tmp /etc /home
 
 ---
 
-## Outils par Catégorie
+## Outils par catégorie
 
-### Désassembleurs / Décompilateurs
+### Désassembleurs / décompilateurs
 
 | Outil | Prix | Plateformes | Notes |
 |-------|------|-------------|-------|
@@ -538,7 +538,7 @@ inotifywait -m -r /tmp /etc /home
 | **WinDbg** | Windows | Microsoft, kernel debugging |
 | **OllyDbg** | Windows | Classique, x86 uniquement |
 
-### Instrumentation Dynamique
+### Instrumentation dynamique
 
 | Outil | Usage |
 |-------|-------|
@@ -548,7 +548,7 @@ inotifywait -m -r /tmp /etc /home
 | **Qiling** | Émulation + instrumentation |
 | **Unicorn** | Émulation CPU légère |
 
-### Analyse Automatisée
+### Analyse automatisée
 
 | Outil | Usage |
 |-------|-------|
@@ -573,12 +573,12 @@ inotifywait -m -r /tmp /etc /home
 
 ---
 
-## Workflow Pratique - Exemple CTF
+## Workflow pratique - Exemple CTF
 
 ### Scénario
 Binary qui demande un password et affiche "Correct!" ou "Wrong!".
 
-### Étape 1: Reconnaissance (2 min)
+### Étape 1: Reconnaissance
 ```bash
 file crackme
 # ELF 64-bit LSB executable, x86-64, dynamically linked, not stripped
@@ -592,7 +592,7 @@ strings crackme | grep -i "correct\|wrong\|password\|flag"
 # Wrong!
 ```
 
-### Étape 2: Analyse Statique (10-15 min)
+### Étape 2: Analyse statique
 ```
 # Ouvrir dans Cutter:
 # 1. File > Open > crackme, cocher "aaa" analysis
@@ -643,7 +643,7 @@ echo "found_password" | ./crackme
 
 ---
 
-## Tips et Bonnes Pratiques
+## Tips et bonnes pratiques
 
 ### Productivité
 
@@ -667,7 +667,7 @@ echo "found_password" | ./crackme
 3. **Logging** - Plutôt que step manuel
 4. **Snapshots** - Sauvegarder l'état pour revenir en arrière
 
-### Erreurs Courantes
+### Erreurs courantes
 
 1. **Se perdre dans les détails** - Garder l'objectif en tête
 2. **Ignorer l'analyse statique** - Balance statique/dynamique
@@ -676,9 +676,9 @@ echo "found_password" | ./crackme
 
 ---
 
-## Ressources d'Apprentissage
+## Ressources d'apprentissage
 
-### CTF et Challenges
+### CTF et challenges
 
 | Ressource | Niveau | Description |
 |-----------|--------|-------------|
@@ -689,7 +689,7 @@ echo "found_password" | ./crackme
 | [picoCTF](https://picoctf.org) | Débutant | CTF éducatif |
 | [Microcorruption](https://microcorruption.com) | Moyen | RE embarqué |
 
-### Cours et Tutoriels
+### Cours et tutoriels
 
 - [Cutter Documentation](https://cutter.re/docs/) - Documentation officielle Cutter
 - [radare2 Book](https://book.rada.re/) - Guide complet radare2/Cutter
@@ -715,7 +715,7 @@ echo "found_password" | ./crackme
 
 ---
 
-## Checklist Récapitulative
+## Checklist récapitulative
 
 ```
 PHASE 1 - TRIAGE

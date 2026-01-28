@@ -1,8 +1,8 @@
-# x86/x64 Assembly Instructions Cheatsheet
+# x86/x64 assembly instructions cheatsheet
 
 ## Registres
 
-### Registres Généraux x64
+### Registres généraux x64
 
 | 64-bit | 32-bit | 16-bit | 8-bit (low) | 8-bit (high) | Usage courant           |
 |--------|--------|--------|-------------|--------------|-------------------------|
@@ -20,7 +20,7 @@
 | r11    | r11d   | r11w   | r11b        | -            | Temporaire              |
 | r12-r15| r12d   | r12w   | r12b        | -            | Callee-saved            |
 
-### Registres Spéciaux
+### Registres spéciaux
 
 | Registre | Description                                      |
 |----------|--------------------------------------------------|
@@ -28,7 +28,7 @@
 | rflags   | Flags (ZF, CF, SF, OF, etc.)                     |
 | cs, ds, ss, es, fs, gs | Segment registers              |
 
-### Flags Importants (RFLAGS)
+### Flags importants (RFLAGS)
 
 | Flag | Nom           | Description                              |
 |------|---------------|------------------------------------------|
@@ -41,7 +41,7 @@
 
 ---
 
-## Top 20 Instructions (couvrent ~90% du code)
+## Top 20 instructions (couvrent ~90% du code)
 
 | Instruction | Description                    | Exemple                    |
 |-------------|--------------------------------|----------------------------|
@@ -68,9 +68,9 @@
 
 ---
 
-## Instructions par Catégorie
+## Instructions par catégorie
 
-### Transfert de Données
+### Transfert de données
 
 | Instruction | Description                              | Exemple                      |
 |-------------|------------------------------------------|------------------------------|
@@ -106,7 +106,7 @@ mov rbx, 7
 div rbx         ; rax = 14, rdx = 2
 ```
 
-### Logique et Bits
+### Logique et bits
 
 | Instruction | Description                    | Usage courant               |
 |-------------|--------------------------------|-----------------------------|
@@ -121,7 +121,7 @@ div rbx         ; rax = 14, rdx = 2
 | bt          | Bit test                       | Test bit spécifique         |
 | bts/btr/btc | Bit test and set/reset/compl  | Modifier bit spécifique     |
 
-### Comparaison et Test
+### Comparaison et test
 
 | Instruction | Description                              | Utilisation           |
 |-------------|------------------------------------------|-----------------------|
@@ -135,7 +135,7 @@ cmp eax, 10         ; Compare eax avec 10
 test al, 1          ; Check if odd (bit 0)
 ```
 
-### Sauts Conditionnels
+### Sauts conditionnels
 
 | Instruction | Condition           | Flags testés      | Signed/Unsigned |
 |-------------|---------------------|-------------------|-----------------|
@@ -154,7 +154,7 @@ test al, 1          ; Check if odd (bit 0)
 | jo          | Overflow            | OF = 1            | -               |
 | jno         | Not Overflow        | OF = 0            | -               |
 
-### Contrôle de Flux
+### Contrôle de flux
 
 | Instruction | Description                              |
 |-------------|------------------------------------------|
@@ -167,7 +167,7 @@ test al, 1          ; Check if odd (bit 0)
 | syscall     | System call (x64)                        |
 | int 0x80    | System call (x86 legacy)                 |
 
-### Opérations sur Strings
+### Opérations sur strings
 
 | Instruction | Description                          | Direction (DF) |
 |-------------|--------------------------------------|----------------|
@@ -191,16 +191,16 @@ rep stosb           ; repeat store byte
 
 ---
 
-## Patterns Communs en Reverse
+## Patterns communs en reverse
 
-### Prologue de Fonction
+### Prologue de fonction
 ```asm
 push rbp            ; Sauvegarder ancien base pointer
 mov rbp, rsp        ; Nouveau base pointer
 sub rsp, 0x20       ; Allouer espace local
 ```
 
-### Épilogue de Fonction
+### Épilogue de fonction
 ```asm
 leave               ; mov rsp, rbp; pop rbp
 ret                 ; Return
@@ -210,7 +210,7 @@ pop rbp
 ret
 ```
 
-### Appel de Fonction (Linux x64)
+### Appel de fonction (Linux x64)
 ```asm
 mov rdi, arg1       ; 1er argument
 mov rsi, arg2       ; 2ème argument
@@ -219,7 +219,7 @@ call function
 ; Retour dans rax
 ```
 
-### Boucle For
+### Boucle for
 ```c
 // for (int i = 0; i < 10; i++)
 ```
@@ -268,7 +268,7 @@ add eax, eax            ; eax = rax*10
 
 ---
 
-## Encodage des Instructions
+## Encodage des instructions
 
 ### Format ModR/M
 ```

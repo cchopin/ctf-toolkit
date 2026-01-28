@@ -1,4 +1,4 @@
-# Debuggers Cheatsheet (GDB, LLDB, radare2)
+# Debuggers cheatsheet (GDB, LLDB, radare2)
 
 ## GDB (GNU Debugger)
 
@@ -12,7 +12,7 @@ gdb -q program               # Mode silencieux
 gdb --args program arg1 arg2 # Avec arguments
 ```
 
-### Commandes de Base
+### Commandes de base
 
 | Commande            | Raccourci | Description                        |
 |---------------------|-----------|-------------------------------------|
@@ -68,7 +68,7 @@ gdb --args program arg1 arg2 # Avec arguments
 - Taille: b(byte), h(halfword), w(word), g(giant/8 bytes)
 - Format: x(hex), d(decimal), u(unsigned), o(octal), t(binary), s(string), i(instruction)
 
-### Stack et Frames
+### Stack et frames
 
 | Commande            | Description                        |
 |---------------------|------------------------------------|
@@ -80,7 +80,7 @@ gdb --args program arg1 arg2 # Avec arguments
 | info args           | Arguments de la fonction           |
 | up/down             | Naviguer dans les frames           |
 
-### Mémoire et Mappings
+### Mémoire et mappings
 
 | Commande                    | Description                        |
 |-----------------------------|------------------------------------|
@@ -173,7 +173,7 @@ lldb -- program arg1 arg2    # Avec arguments
 | disassemble        | disassemble -f                    |
 | info proc mappings | image list                        |
 
-### Commandes Spécifiques LLDB
+### Commandes spécifiques LLDB
 
 | Commande                          | Description                  |
 |-----------------------------------|------------------------------|
@@ -251,7 +251,7 @@ r2 -AA binary                # Analyse approfondie
 | V           | Visual mode                              |
 | VV          | Visual graph mode                        |
 
-### Debug Mode (r2 -d)
+### Debug mode (r2 -d)
 
 | Commande    | Description                              |
 |-------------|------------------------------------------|
@@ -302,7 +302,7 @@ r2 -AA binary                # Analyse approfondie
 | ic          | Classes (C++, ObjC)                      |
 | ir          | Relocations                              |
 
-### Visual Mode
+### Visual mode
 
 ```
 V     - Entrer en visual mode
@@ -315,7 +315,7 @@ q     - Quitter visual mode
 ?     - Aide visual mode
 ```
 
-### Visual Graph Mode (VV)
+### Visual graph mode (VV)
 
 ```
 VV    - Entrer en graph mode
@@ -356,7 +356,7 @@ e cfg.fortunes = false
 
 ---
 
-## Comparaison Rapide
+## Comparaison rapide
 
 | Action              | GDB                  | LLDB                  | radare2          |
 |---------------------|----------------------|-----------------------|------------------|

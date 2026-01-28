@@ -1,13 +1,13 @@
-# Syscalls Cheatsheet - Assembleur Multi-Architecture
+# Syscalls cheatsheet - Assembleur multi-architecture
 
-## Comprendre les Syscalls
+## Comprendre les syscalls
 
 ### Qu'est-ce qu'un syscall ?
 Un syscall (system call) est une interface entre un programme utilisateur et le noyau du système d'exploitation. Chaque syscall a un numéro unique qui varie selon l'OS et l'architecture.
 
 ---
 
-## Convention d'Appel par OS/Architecture
+## Convention d'appel par OS/architecture
 
 ### Linux x86_64 (64-bit)
 ```
@@ -60,7 +60,7 @@ Note: Préférer les API Win32 (kernel32, ntdll)
 
 ---
 
-## Le Mystère du 0x2000000 sur macOS
+## Le mystère du 0x2000000 sur macOS
 
 Sur macOS, le numéro de syscall contient une **classe** dans les bits de poids fort:
 
@@ -83,9 +83,9 @@ mov rax, 0x2000004  ; Classe 2 (BSD) + syscall 4 (write)
 
 ---
 
-## Tableau Comparatif des Syscalls Courants
+## Tableau comparatif des syscalls courants
 
-### Opérations Fichiers/IO
+### Opérations fichiers/IO
 
 | Fonction    | Linux x64 | Linux x86 | Linux ARM64 | macOS (BSD) | macOS (full)  |
 |-------------|-----------|-----------|-------------|-------------|---------------|
@@ -149,7 +149,7 @@ mov rax, 0x2000004  ; Classe 2 (BSD) + syscall 4 (write)
 
 ---
 
-## Exemples Complets
+## Exemples complets
 
 ### Hello World - Linux x86_64
 ```asm
@@ -273,11 +273,11 @@ msg: .ascii "Hello, World!\n"
 
 ---
 
-## Windows Syscalls (NT API)
+## Windows syscalls (NT API)
 
 **Attention:** Les numéros de syscalls Windows changent entre versions!
 
-### Numéros Syscall Windows (exemples - peuvent varier!)
+### Numéros syscall Windows (exemples - peuvent varier!)
 
 | Fonction          | Win7 x64 | Win10 1909 | Win11    |
 |-------------------|----------|------------|----------|
@@ -327,7 +327,7 @@ main:
 
 ---
 
-## Référence Rapide - Conversions
+## Référence rapide - Conversions
 
 ### Calcul macOS syscall number
 ```
@@ -371,7 +371,7 @@ cat /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/syscall.
 
 ---
 
-## Aide-Mémoire Rapide
+## Aide-mémoire rapide
 
 ```
 +------------------+----------+---------+-------------+---------------------------+

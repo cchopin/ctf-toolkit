@@ -1,6 +1,6 @@
-# Executable File Formats Cheatsheet
+# Executable file formats cheatsheet
 
-## Vue d'Ensemble
+## Vue d'ensemble
 
 | Format  | Système           | Extension          | Magic bytes              |
 |---------|-------------------|--------------------|--------------------------|
@@ -12,7 +12,7 @@
 
 ## ELF (Executable and Linkable Format)
 
-### Structure Générale
+### Structure générale
 
 ```
 +------------------+
@@ -30,7 +30,7 @@
 +------------------+
 ```
 
-### ELF Header (64-bit)
+### ELF header (64-bit)
 
 | Offset | Taille | Champ            | Description                        |
 |--------|--------|------------------|------------------------------------|
@@ -50,7 +50,7 @@
 | 0x3E   | 2      | e_shnum          | Number of section headers          |
 | 0x40   | 2      | e_shstrndx       | Section name string table index    |
 
-### Program Header Types (p_type)
+### Program header types (p_type)
 
 | Valeur | Nom           | Description                           |
 |--------|---------------|---------------------------------------|
@@ -65,7 +65,7 @@
 | 0x6474e551 | PT_GNU_STACK    | Stack executability          |
 | 0x6474e552 | PT_GNU_RELRO    | Read-only after relocation   |
 
-### Sections Courantes
+### Sections courantes
 
 | Section    | Description                              | Flags |
 |------------|------------------------------------------|-------|
@@ -87,7 +87,7 @@
 
 **Flags:** A=Alloc, W=Write, X=Execute
 
-### Commandes Utiles
+### Commandes utiles
 
 ```bash
 # Voir l'ELF header
@@ -119,7 +119,7 @@ objdump -M intel -d binary    # Syntaxe Intel
 
 ## PE (Portable Executable)
 
-### Structure Générale
+### Structure générale
 
 ```
 +------------------+
@@ -148,7 +148,7 @@ objdump -M intel -d binary    # Syntaxe Intel
 | 0x00   | 2      | e_magic    | Magic: `4D 5A` ("MZ")          |
 | 0x3C   | 4      | e_lfanew   | Offset vers PE header          |
 
-### PE Header (COFF)
+### PE header (COFF)
 
 | Offset | Taille | Champ              | Description                 |
 |--------|--------|--------------------|-----------------------------|
@@ -159,7 +159,7 @@ objdump -M intel -d binary    # Syntaxe Intel
 | 0x14   | 2      | SizeOfOptionalHeader| Taille Optional Header     |
 | 0x16   | 2      | Characteristics    | Flags (DLL, executable...)  |
 
-### Optional Header (PE32+/64-bit)
+### Optional header (PE32+/64-bit)
 
 | Offset | Taille | Champ              | Description                 |
 |--------|--------|--------------------|-----------------------------|
@@ -174,7 +174,7 @@ objdump -M intel -d binary    # Syntaxe Intel
 | 0x58   | 4      | NumberOfRvaAndSizes| Nombre de Data Directories  |
 | 0x60   | var    | DataDirectory[16]  | Export, Import, Resources...|
 
-### Data Directories
+### Data directories
 
 | Index | Nom                    | Description                    |
 |-------|------------------------|--------------------------------|
@@ -189,7 +189,7 @@ objdump -M intel -d binary    # Syntaxe Intel
 | 12    | IAT                    | Import Address Table           |
 | 14    | CLR Runtime Header     | .NET metadata                  |
 
-### Sections Courantes
+### Sections courantes
 
 | Section   | Description                              |
 |-----------|------------------------------------------|
@@ -204,7 +204,7 @@ objdump -M intel -d binary    # Syntaxe Intel
 | .tls      | Thread Local Storage                     |
 | .pdata    | Exception info (x64)                     |
 
-### Commandes Utiles
+### Commandes utiles
 
 ```powershell
 # Windows - dumpbin
@@ -233,7 +233,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 
 ## Mach-O (macOS/iOS)
 
-### Structure Générale
+### Structure générale
 
 ```
 +------------------+
@@ -249,7 +249,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 +------------------+
 ```
 
-### Fat/Universal Binary
+### Fat/universal binary
 
 ```
 +------------------+
@@ -264,7 +264,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 +------------------+
 ```
 
-### Magic Numbers
+### Magic numbers
 
 | Magic        | Description                          |
 |--------------|--------------------------------------|
@@ -275,7 +275,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 | 0xCAFEBABE   | Fat binary (big-endian)              |
 | 0xBEBAFECA   | Fat binary (little-endian)           |
 
-### Mach-O Header (64-bit)
+### Mach-O header (64-bit)
 
 | Offset | Taille | Champ      | Description                    |
 |--------|--------|------------|--------------------------------|
@@ -288,7 +288,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 | 0x18   | 4      | flags      | Flags                          |
 | 0x1C   | 4      | reserved   | Reserved (64-bit only)         |
 
-### CPU Types
+### CPU types
 
 | Valeur     | Architecture |
 |------------|--------------|
@@ -297,7 +297,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 | 0x00000007 | i386         |
 | 0x0000000C | ARM          |
 
-### Load Commands
+### Load commands
 
 | Commande          | Description                           |
 |-------------------|---------------------------------------|
@@ -312,7 +312,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 | LC_ENCRYPTION_INFO| Info de chiffrement (iOS)             |
 | LC_FUNCTION_STARTS| Adresses des fonctions                |
 
-### Segments Courants
+### Segments courants
 
 | Segment    | Description                              |
 |------------|------------------------------------------|
@@ -345,7 +345,7 @@ python -c "import pefile; pe=pefile.PE('file.exe'); print(pe.dump_info())"
 | __nl_symbol_ptr | Non-lazy symbol pointers     |
 | __objc_*      | Objective-C metadata           |
 
-### Commandes Utiles
+### Commandes utiles
 
 ```bash
 # Voir les headers
@@ -376,7 +376,7 @@ codesign -dv binary
 
 ---
 
-## Comparaison Rapide
+## Comparaison rapide
 
 | Aspect          | ELF              | PE                | Mach-O            |
 |-----------------|------------------|-------------------|-------------------|
@@ -390,7 +390,7 @@ codesign -dv binary
 
 ---
 
-## Outils Multi-Format
+## Outils multi-format
 
 | Outil         | ELF | PE | Mach-O | Description               |
 |---------------|-----|-----|--------|---------------------------|

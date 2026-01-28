@@ -1,12 +1,12 @@
-# Anti-Debugging Techniques Cheatsheet
+# Anti-debugging techniques cheatsheet
 
-## Vue d'Ensemble
+## Vue d'ensemble
 
 L'anti-debugging regroupe les techniques utilisées pour détecter ou perturber l'analyse d'un programme sous debugger. Comprendre ces techniques est essentiel pour l'analyse de malware.
 
 ---
 
-## Windows Anti-Debugging
+## Windows anti-debugging
 
 ### 1. IsDebuggerPresent
 
@@ -110,7 +110,7 @@ if (heap->Flags & ~HEAP_GROWABLE || heap->ForceFlags) {
 }
 ```
 
-### 6. Hardware Breakpoints (Debug Registers)
+### 6. Hardware breakpoints (debug registers)
 
 **Détection:**
 ```c
@@ -124,7 +124,7 @@ if (ctx.Dr0 || ctx.Dr1 || ctx.Dr2 || ctx.Dr3) {
 
 **Bypass:** Clear les debug registers.
 
-### 7. Software Breakpoints (INT 3)
+### 7. Software breakpoints (INT 3)
 
 **Détection:**
 ```c
@@ -143,7 +143,7 @@ if (checksum != EXPECTED_CHECKSUM) {
 }
 ```
 
-### 8. Timing Attacks
+### 8. Timing attacks
 
 **Détection:**
 ```c
@@ -200,7 +200,7 @@ __except(EXCEPTION_EXECUTE_HANDLER) {
 return TRUE;
 ```
 
-### 10. Parent Process Check
+### 10. Parent process check
 
 **Détection:**
 ```c
@@ -210,7 +210,7 @@ HANDLE hParent = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, parentPID);
 // Comparer le nom du processus parent avec "explorer.exe"
 ```
 
-### 11. Window Enumeration
+### 11. Window enumeration
 
 **Détection:**
 ```c
@@ -224,7 +224,7 @@ if (FindWindowA("OLLYDBG", NULL) ||
 
 ---
 
-## Linux Anti-Debugging
+## Linux anti-debugging
 
 ### 1. ptrace(PTRACE_TRACEME)
 
@@ -298,7 +298,7 @@ long diff = (end.tv_sec - start.tv_sec) * 1000000000 +
 if (diff > THRESHOLD_NS) exit(1);
 ```
 
-### 6. Signal Handlers
+### 6. Signal handlers
 
 **Détection:**
 ```c
@@ -323,7 +323,7 @@ prctl(PR_SET_DUMPABLE, 0);
 prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY);
 ```
 
-### 8. LD_PRELOAD Detection
+### 8. LD_PRELOAD detection
 
 **Détection:**
 ```c
@@ -334,7 +334,7 @@ if (getenv("LD_PRELOAD") != NULL) {
 
 ---
 
-## macOS Anti-Debugging
+## macOS anti-debugging
 
 ### 1. ptrace(PT_DENY_ATTACH)
 
@@ -389,7 +389,7 @@ task_info(mach_task_self(), TASK_DEBUG_INFO_INTERNAL, (task_info_t)&info, &count
 
 ---
 
-## Techniques Anti-VM/Sandbox
+## Techniques anti-VM/sandbox
 
 ### Détection VM
 
@@ -413,7 +413,7 @@ vendor[12] = 0;
 // vendor contient "VMwareVMware", "VBoxVBoxVBox", etc.
 ```
 
-### Détection Sandbox/Analysis
+### Détection sandbox/analysis
 
 ```c
 // Vérifier les usernames courants en sandbox
@@ -450,9 +450,9 @@ if (si.dwNumberOfProcessors < 2) {
 
 ---
 
-## Techniques de Bypass Génériques
+## Techniques de bypass génériques
 
-### 1. Patching Binaire
+### 1. Patching binaire
 
 ```bash
 # Trouver et patcher les checks anti-debug
@@ -474,7 +474,7 @@ gcc -shared -fPIC fake_ptrace.c -o fake_ptrace.so
 LD_PRELOAD=./fake_ptrace.so ./binary
 ```
 
-### 3. GDB Scripts
+### 3. GDB scripts
 
 ```gdb
 # Bypass IsDebuggerPresent
@@ -492,13 +492,13 @@ define hook-stop
 end
 ```
 
-### 4. x64dbg Plugins
+### 4. x64dbg plugins
 
 - ScyllaHide: Cache le debugger automatiquement
 - TitanHide: Kernel-mode anti-anti-debug
 - SharpOD: Anti-anti-debug
 
-### 5. Frida Instrumentation
+### 5. Frida instrumentation
 
 ```javascript
 // Bypass ptrace

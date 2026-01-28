@@ -2,7 +2,7 @@
 
 **Objectif** : apprendre à lire l'assembleur pour analyser des binaires et des malwares.
 **Plateforme** : Mac M2 (avec solutions de compatibilité pour x86-64)
-**Prérequis** : connaissances de base en C, curiosité
+**Prérequis** : connaissances de base en C
 **Durée estimée** : 8-12 semaines à raison de 5-10h/semaine
 
 ---
@@ -16,7 +16,7 @@
 | 2 | Instructions de base | 2 semaines |
 | 3 | Flux de contrôle | 2 semaines |
 | 4 | Fonctions et pile | 2 semaines |
-| 5 | Introduction à Ghidra | 1-2 semaines |
+| 5 | Introduction à Cutter | 1-2 semaines |
 | 6 | Premiers challenges | continu |
 
 ---
@@ -25,13 +25,13 @@
 
 ## Pourquoi x86-64 sur un Mac M2 ?
 
-Ton Mac M2 utilise une architecture ARM, mais 95% des malwares Windows/Linux sont en x86-64. Pour le reverse engineering, tu dois donc apprendre x86-64.
+Les Mac M2 utilisent une architecture ARM, mais 95% des malwares Windows/Linux sont en x86-64. Pour le reverse engineering, il est donc nécessaire d'apprendre x86-64.
 
-**Bonne nouvelle** : Ghidra fonctionne nativement sur Mac et peut analyser des binaires x86-64 sans problème. Tu n'as pas besoin d'exécuter le code, juste de le lire.
+Point positif : Cutter fonctionne nativement sur Mac et peut analyser des binaires x86-64 sans problème. Il n'est pas nécessaire d'exécuter le code, seulement de le lire.
 
 ## Installation des outils
 
-### 1. Homebrew (si pas déjà installé)
+### 1. Homebrew (si non installé)
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -43,70 +43,64 @@ Ton Mac M2 utilise une architecture ARM, mais 95% des malwares Windows/Linux son
 # NASM : assembleur pour écrire du code x86
 brew install nasm
 
-# Radare2 : désassembleur en ligne de commande
-brew install radare2
+# Rizin : framework d'analyse (successeur de Radare2, base de Cutter)
+brew install rizin
 
-# GDB (via binutils) ou LLDB (natif sur Mac)
-# LLDB est déjà installé avec Xcode Command Line Tools
+# LLDB (natif sur Mac, installé avec Xcode Command Line Tools)
 xcode-select --install
 ```
 
-### 3. Ghidra (outil principal)
+### 3. Cutter (outil principal)
+
+Cutter est une interface graphique libre et open source pour le reverse engineering, basée sur Rizin. Elle intègre un décompilateur (Ghidra ou Jsdec) et offre une expérience utilisateur moderne.
 
 ```bash
-# Installer Java (requis par Ghidra)
-brew install openjdk@17
-
-# Ajouter Java au PATH (ajouter dans ~/.zshrc)
-echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# Télécharger Ghidra depuis https://ghidra-sre.org/
-# Décompresser et lancer avec ./ghidraRun
+# Installation via Homebrew
+brew install --cask cutter
 ```
+
+Alternativement, télécharger la dernière version depuis https://cutter.re/
 
 ### 4. VM Windows (optionnel mais recommandé)
 
-Pour exécuter et debugger des binaires Windows, installe UTM (gratuit, optimisé Apple Silicon) :
+Pour exécuter et debugger des binaires Windows, installer UTM (gratuit, optimisé Apple Silicon) :
 
 ```bash
 brew install --cask utm
 ```
 
-Puis télécharge une ISO Windows 11 ARM ou utilise les images prêtes à l'emploi sur le site UTM.
+Puis télécharger une ISO Windows 11 ARM ou utiliser les images prêtes à l'emploi sur le site UTM.
 
-### 5. Compiler Explorer (en ligne, pas d'installation)
+### 5. Compiler Explorer (en ligne, sans installation)
 
-https://godbolt.org permet de voir instantanément le code assembleur généré par du code C.
-C'est l'outil parfait pour apprendre la correspondance C → assembleur.
+https://godbolt.org permet de voir instantanément le code assembleur généré par du code C. C'est l'outil idéal pour apprendre la correspondance C vers assembleur.
 
 ---
 
-**Vidéo recommandée** :
-- "you can mass-analyze binaries with ghidra scripting" - Low Level (8 min)
-  https://www.youtube.com/watch?v=6zRN-s4g_5M
-  (Montre l'installation et l'interface de Ghidra)
+**Ressource recommandée** :
+- Documentation officielle Cutter : https://cutter.re/docs/
+- Chaîne YouTube Rizin : https://www.youtube.com/@RizinOrg
 
 ---
 
 ## Exercice 0.1 : vérifier l'installation
 
 ```bash
-# Vérifie que NASM fonctionne
+# Vérifier que NASM fonctionne
 nasm -v
 
-# Vérifie que radare2 fonctionne
-r2 -v
+# Vérifier que Rizin fonctionne
+rizin -v
 
-# Vérifie Java pour Ghidra
-java -version
+# Lancer Cutter
+open -a Cutter
 ```
 
 ## Exercice 0.2 : premier contact avec Compiler Explorer
 
-1. Va sur https://godbolt.org
-2. Sélectionne le langage C et le compilateur "x86-64 gcc"
-3. Tape ce code :
+1. Accéder à https://godbolt.org
+2. Sélectionner le langage C et le compilateur "x86-64 gcc"
+3. Saisir ce code :
 
 ```c
 int add(int a, int b) {
@@ -114,9 +108,9 @@ int add(int a, int b) {
 }
 ```
 
-4. Observe le code assembleur généré à droite
-5. Change les options de compilation : ajoute `-O0` (pas d'optimisation) puis `-O2` (optimisé)
-6. Compare les deux résultats
+4. Observer le code assembleur généré à droite
+5. Modifier les options de compilation : ajouter `-O0` (pas d'optimisation) puis `-O2` (optimisé)
+6. Comparer les deux résultats
 
 **Question** : combien d'instructions génère la version non optimisée vs optimisée ?
 
@@ -126,9 +120,9 @@ int add(int a, int b) {
 
 ## 1.1 Qu'est-ce qu'un registre ?
 
-Un registre est une petite zone de mémoire ultra-rapide directement dans le CPU. Pense aux registres comme des variables intégrées au processeur.
+Un registre est une petite zone de mémoire ultra-rapide directement dans le CPU. Les registres peuvent être considérés comme des variables intégrées au processeur.
 
-En x86-64, il y a 16 registres généraux de 64 bits :
+En x86-64, il existe 16 registres généraux de 64 bits :
 
 | Registre | Usage courant | Taille |
 |----------|---------------|--------|
@@ -162,36 +156,32 @@ Exemple pratique :
 - `AL` = 8 bits inférieurs de AX
 - `AH` = 8 bits supérieurs de AX
 
-**Pourquoi c'est important ?** En reverse engineering, tu verras souvent du code qui manipule `EAX` au lieu de `RAX`. Ça signifie que le programme travaille avec des valeurs 32 bits.
+**Importance en reverse engineering** : du code manipulant `EAX` au lieu de `RAX` indique que le programme travaille avec des valeurs 32 bits.
 
 ---
 
 **Vidéo recommandée** :
-- "you can mass-analyze binaries with ghidra scripting" - Low Level (8 min)
-  https://www.youtube.com/watch?v=oGhfv7rJgjs
-  (Explication claire des registres x86)
-
 - "Assembly Language in 100 Seconds" - Fireship (2 min)
   https://www.youtube.com/watch?v=4gwYkEK0gOk
-  (Vue d'ensemble ultra-rapide)
+  (Vue d'ensemble rapide)
 
 ---
 
 ## 1.3 La mémoire et les adresses
 
-La mémoire est un grand tableau d'octets. Chaque octet a une adresse unique.
+La mémoire est un grand tableau d'octets. Chaque octet possède une adresse unique.
 
 ```
 Adresse     Contenu
 0x0000      [XX]
 0x0001      [XX]
 ...
-0x7FFF      [XX]  ← zone utilisateur
+0x7FFF      [XX]  <- zone utilisateur
 ...
-0xFFFF...   [XX]  ← zone kernel (inaccessible)
+0xFFFF...   [XX]  <- zone kernel (inaccessible)
 ```
 
-**Little-endian** : sur x86, les octets sont stockés à l'envers !
+**Little-endian** : sur x86, les octets sont stockés en ordre inversé.
 
 Exemple : la valeur `0x12345678` est stockée comme :
 ```
@@ -199,11 +189,11 @@ Adresse:  0x100  0x101  0x102  0x103
 Contenu:   78     56     34     12
 ```
 
-C'est contre-intuitif mais tu t'y habitueras. En RE, c'est crucial de le savoir.
+Cette particularité est contre-intuitive mais essentielle à connaître en reverse engineering.
 
 ## 1.4 Modes d'adressage
 
-En assembleur, tu peux accéder à la mémoire de plusieurs façons :
+En assembleur, l'accès à la mémoire peut se faire de plusieurs façons :
 
 | Syntaxe | Signification |
 |---------|---------------|
@@ -214,13 +204,13 @@ En assembleur, tu peux accéder à la mémoire de plusieurs façons :
 | `mov rax, [rbx+rcx*4]` | Base + index * échelle |
 | `mov rax, [rbx+rcx*4+16]` | Complet : base + index*scale + displacement |
 
-Les crochets `[]` signifient "va chercher la valeur à cette adresse".
+Les crochets `[]` signifient "récupérer la valeur à cette adresse".
 
 ---
 
 ## Exercice 1.1 : registres dans Compiler Explorer
 
-Sur https://godbolt.org, compile ce code :
+Sur https://godbolt.org, compiler ce code :
 
 ```c
 int example() {
@@ -238,12 +228,12 @@ Questions :
 
 ## Exercice 1.2 : little-endian
 
-Si tu vois en mémoire les octets `41 42 43 44` à partir de l'adresse `0x1000`, quelle est la valeur 32 bits stockée ?
+Si les octets `41 42 43 44` apparaissent en mémoire à partir de l'adresse `0x1000`, quelle est la valeur 32 bits stockée ?
 
 <details>
 <summary>Réponse</summary>
 
-En little-endian, c'est `0x44434241`.
+En little-endian, la valeur est `0x44434241`.
 En ASCII, ces octets correspondent à "ABCD" (0x41='A', 0x42='B', etc.)
 </details>
 
@@ -262,7 +252,7 @@ mov rcx, [rax]      ; rcx = valeur à l'adresse contenue dans rax
 mov [rax], rcx      ; valeur à l'adresse rax = rcx
 ```
 
-**Attention** : on ne peut pas faire `mov [rax], [rbx]` (mémoire vers mémoire). Il faut passer par un registre.
+**Attention** : l'instruction `mov [rax], [rbx]` (mémoire vers mémoire) n'est pas valide. Il faut passer par un registre.
 
 ## 2.2 Instructions arithmétiques
 
@@ -285,15 +275,15 @@ mov [rax], rcx      ; valeur à l'adresse rax = rcx
 | `or dst, src` | OU bit à bit | `or rax, rbx` |
 | `xor dst, src` | XOR bit à bit | `xor rax, rax` (= 0) |
 | `not dst` | NON bit à bit | `not rax` |
-| `shl dst, n` | Décalage gauche | `shl rax, 2` (× 4) |
-| `shr dst, n` | Décalage droite | `shr rax, 1` (÷ 2) |
+| `shl dst, n` | Décalage gauche | `shl rax, 2` (x 4) |
+| `shr dst, n` | Décalage droite | `shr rax, 1` (/ 2) |
 
-**Astuce RE** : `xor rax, rax` est la façon idiomatique de mettre un registre à zéro (plus rapide que `mov rax, 0`).
+**Pattern courant en RE** : `xor rax, rax` est la façon idiomatique de mettre un registre à zéro (plus rapide que `mov rax, 0`).
 
 ## 2.4 Instructions de comparaison
 
 ```asm
-cmp rax, rbx        ; Compare rax et rbx (fait rax - rbx sans stocker)
+cmp rax, rbx        ; Compare rax et rbx (effectue rax - rbx sans stocker)
 test rax, rax       ; ET logique sans stocker (souvent pour tester si = 0)
 ```
 
@@ -308,13 +298,13 @@ Ces instructions mettent à jour les FLAGS (registre spécial) :
 **Vidéo recommandée** :
 - "Comparing C to machine language" - Ben Eater (10 min)
   https://www.youtube.com/watch?v=yOyaJXpAYZQ
-  (Excellent pour comprendre le lien C → assembleur)
+  (Lien C vers assembleur)
 
 ---
 
 ## Exercice 2.1 : traduire en assembleur (mental)
 
-Sans compiler, devine ce que fait ce code assembleur :
+Sans compiler, déterminer ce que fait ce code assembleur :
 
 ```asm
 mov rax, 10
@@ -350,15 +340,15 @@ mov ecx, 10
 <details>
 <summary>Réponse</summary>
 
-C'est une boucle qui calcule la somme de 10 à 1 : 10+9+8+7+6+5+4+3+2+1 = 55
+Il s'agit d'une boucle qui calcule la somme de 10 à 1 : 10+9+8+7+6+5+4+3+2+1 = 55
 - `xor eax, eax` : eax = 0
 - `mov ecx, 10` : ecx = compteur = 10
-- boucle : eax += ecx, ecx--, si ecx ≠ 0 recommence
+- boucle : eax += ecx, ecx--, si ecx != 0 recommence
 </details>
 
 ## Exercice 2.3 : Compiler Explorer avancé
 
-Sur godbolt.org, écris une fonction C qui :
+Sur godbolt.org, écrire une fonction C qui :
 1. Prend deux entiers
 2. Retourne le plus grand
 
@@ -369,7 +359,7 @@ int max(int a, int b) {
 }
 ```
 
-Observe le code généré. Tu devrais voir `cmp` et des sauts conditionnels.
+Observer le code généré. Les instructions `cmp` et les sauts conditionnels devraient être visibles.
 
 ---
 
@@ -385,7 +375,7 @@ jmp label           ; Saute toujours à label
 
 ## 3.2 Les sauts conditionnels
 
-Après un `cmp` ou `test`, on peut sauter conditionnellement :
+Après un `cmp` ou `test`, il est possible de sauter conditionnellement :
 
 | Instruction | Condition | Usage typique |
 |-------------|-----------|---------------|
@@ -393,8 +383,8 @@ Après un `cmp` ou `test`, on peut sauter conditionnellement :
 | `jne` / `jnz` | ZF=0 (différent / non-zéro) | `if (a != b)` |
 | `jg` / `jnle` | SF=OF et ZF=0 (greater, signé) | `if (a > b)` signé |
 | `jge` / `jnl` | SF=OF (greater or equal) | `if (a >= b)` signé |
-| `jl` / `jnge` | SF≠OF (less, signé) | `if (a < b)` signé |
-| `jle` / `jng` | SF≠OF ou ZF=1 | `if (a <= b)` signé |
+| `jl` / `jnge` | SF!=OF (less, signé) | `if (a < b)` signé |
+| `jle` / `jng` | SF!=OF ou ZF=1 | `if (a <= b)` signé |
 | `ja` / `jnbe` | CF=0 et ZF=0 (above, non-signé) | `if (a > b)` non-signé |
 | `jae` / `jnb` | CF=0 | `if (a >= b)` non-signé |
 | `jb` / `jnae` | CF=1 (below, non-signé) | `if (a < b)` non-signé |
@@ -456,14 +446,7 @@ for (int i = 0; i < 10; i++) {
 }
 ```
 
-C'est identique au while, avec initialisation avant la boucle.
-
----
-
-**Vidéo recommandée** :
-- "how mass satisfies a relation in assembly" - Low Level (6 min)
-  https://www.youtube.com/watch?v=TPhF2X1qPao
-  (Explication des sauts conditionnels)
+Structure identique au while, avec initialisation avant la boucle.
 
 ---
 
@@ -534,12 +517,12 @@ La pile est une zone mémoire qui grandit vers le bas (adresses décroissantes).
 
 ```
 Adresses hautes
-    ↑
+    |
     |  [anciennes données]
-    |  [return address]     ← après CALL
-    |  [saved RBP]          ← prologue
-    |  [variables locales]  ← RSP pointe ici
-    ↓
+    |  [return address]     <- après CALL
+    |  [saved RBP]          <- prologue
+    |  [variables locales]  <- RSP pointe ici
+    v
 Adresses basses
 ```
 
@@ -616,7 +599,7 @@ mov [result], eax   ; stocke le résultat
 **Vidéo recommandée** :
 - "The Call Stack" - CS 61C (UC Berkeley, 12 min)
   https://www.youtube.com/watch?v=Q2sFmqvpBe0
-  (Excellente visualisation de la pile)
+  (Visualisation de la pile)
 
 ---
 
@@ -685,75 +668,114 @@ Autrement dit, elle retourne simplement n (de façon très inefficace).
 
 ---
 
-# Module 5 : introduction à Ghidra
+# Module 5 : introduction à Cutter
 
-## 5.1 Premier lancement
+## 5.1 Présentation de Cutter
 
-1. Lance Ghidra : `./ghidraRun` dans le dossier d'installation
-2. Crée un nouveau projet : File → New Project → Non-Shared Project
-3. Importe un binaire : File → Import File
-4. Double-clique sur le fichier pour l'ouvrir dans CodeBrowser
-5. Clique "Yes" pour lancer l'analyse automatique
+Cutter est une plateforme libre et open source de reverse engineering. Elle est basée sur Rizin (un fork de Radare2) et offre une interface graphique moderne et intuitive.
 
-## 5.2 Interface principale
+**Avantages de Cutter** :
+- Interface graphique native et réactive
+- Intégration du décompilateur Ghidra ou Jsdec
+- Graphes de flux de contrôle interactifs
+- Débogueur intégré
+- Scripting Python
+- Multiplateforme (Linux, macOS, Windows)
+- Entièrement gratuit et open source
+
+## 5.2 Premier lancement
+
+1. Lancer Cutter depuis le dossier Applications ou via le terminal
+2. Cliquer sur "Open File" et sélectionner un binaire à analyser
+3. Dans la fenêtre d'options, conserver les paramètres par défaut
+4. Cocher "Analyze all referenced code" pour une analyse complète
+5. Cliquer sur "OK" pour lancer l'analyse
+
+## 5.3 Interface principale
 
 ```
-┌─────────────┬──────────────────────┬─────────────────┐
-│ Program     │ Listing              │ Decompiler      │
-│ Trees       │ (vue assembleur)     │ (pseudo-C)      │
-├─────────────┤                      │                 │
-│ Symbol Tree │                      │                 │
-│             │                      │                 │
-├─────────────┤                      │                 │
-│ Data Type   │                      │                 │
-│ Manager     │                      │                 │
-└─────────────┴──────────────────────┴─────────────────┘
++-------------+----------------------+-----------------+
+| Fonctions   | Désassembleur        | Décompilateur   |
+|             | (vue assembleur)     | (pseudo-C)      |
++-------------+                      |                 |
+| Imports     |                      |                 |
+|             |                      |                 |
++-------------+                      |                 |
+| Strings     |                      |                 |
+|             |                      |                 |
++-------------+----------------------+-----------------+
+| Console Rizin                                        |
++------------------------------------------------------+
 ```
 
-## 5.3 Navigation de base
+**Panneaux principaux** :
+- **Fonctions** : liste des fonctions détectées
+- **Imports** : fonctions importées depuis des bibliothèques
+- **Strings** : chaînes de caractères trouvées dans le binaire
+- **Désassembleur** : code assembleur avec possibilité de vue graphique
+- **Décompilateur** : code pseudo-C généré automatiquement
+- **Console** : accès aux commandes Rizin
+
+## 5.4 Navigation de base
 
 | Action | Raccourci |
 |--------|-----------|
 | Aller à une adresse | G |
-| Renommer | L |
-| Changer le type | T |
-| Références croisées (qui appelle ça?) | X |
-| Chercher une chaîne | Search → For Strings |
-| Chercher dans le code | Search → Memory |
-| Commenter | ; |
+| Renommer une fonction/variable | N |
+| Ajouter un commentaire | ; |
+| Basculer vue graphique/linéaire | Espace |
+| Références croisées (xrefs) | X |
+| Chercher une chaîne | Ctrl+Shift+F |
 | Undo | Ctrl+Z |
+| Afficher le décompilateur | Tab |
 
-## 5.4 Workflow typique
+## 5.5 Workflow typique
 
-1. **Trouver le point d'entrée** : cherche `main` ou `entry` dans Symbol Tree
-2. **Identifier les fonctions intéressantes** : regarde les imports (printf, strcmp, socket...)
-3. **Suivre le flux** : double-clique sur les appels de fonction
-4. **Renommer les variables** : rends le code lisible
-5. **Annoter** : ajoute des commentaires
+1. **Identifier le point d'entrée** : chercher `main` ou `entry` dans la liste des fonctions
+2. **Explorer les imports** : identifier les fonctions système utilisées (printf, strcmp, socket, etc.)
+3. **Analyser les strings** : les chaînes de caractères révèlent souvent le comportement du programme
+4. **Suivre le flux** : double-cliquer sur les appels de fonction pour naviguer
+5. **Renommer les éléments** : améliorer la lisibilité en donnant des noms explicites
+6. **Annoter** : ajouter des commentaires pour documenter l'analyse
 
-## 5.5 Exercice Ghidra : premier crackme
+## 5.6 Vue graphique
 
-Télécharge un crackme simple sur https://crackmes.one (difficulté 1.0).
+La vue graphique (activée avec Espace) affiche le flux de contrôle sous forme de blocs connectés :
+- Les blocs verts indiquent un saut conditionnel pris (true)
+- Les blocs rouges indiquent un saut conditionnel non pris (false)
+- Les flèches montrent les transitions entre blocs
+
+Cette vue est particulièrement utile pour comprendre les boucles et les conditions.
+
+## 5.7 Utilisation du décompilateur
+
+Le décompilateur génère du pseudo-code C à partir de l'assembleur. Pour l'utiliser :
+
+1. Sélectionner une fonction dans le panneau de gauche
+2. Le code décompilé apparaît dans le panneau de droite
+3. Les variables peuvent être renommées directement dans cette vue
+4. Les types peuvent être modifiés pour améliorer la lisibilité
+
+**Note** : le code décompilé est une approximation. Il peut contenir des erreurs ou des constructions inhabituelles. Toujours vérifier avec le code assembleur en cas de doute.
+
+## 5.8 Exercice Cutter : premier crackme
+
+Télécharger un crackme simple sur https://crackmes.one (difficulté 1.0).
 
 Mot de passe des archives : `crackmes.one`
 
 Étapes :
-1. Importe le binaire dans Ghidra
-2. Trouve la fonction `main`
-3. Cherche les chaînes de caractères (Search → For Strings)
-4. Trouve la condition de validation
-5. Détermine le mot de passe
+1. Importer le binaire dans Cutter
+2. Localiser la fonction `main`
+3. Examiner les chaînes de caractères (panneau Strings)
+4. Identifier la condition de validation dans le décompilateur
+5. Déterminer le mot de passe attendu
 
 ---
 
-**Vidéo recommandée** :
-- Cours Hackaday "Introduction to Reverse Engineering with Ghidra" (4 sessions)
-  https://www.youtube.com/watch?v=d4Pgi5XML8E (session 1, 1h30)
-  (Le cours de référence, très complet)
-
-- "Ghidra quickstart & tutorial: Solving a simple crackme" - stacksmashing (15 min)
-  https://www.youtube.com/watch?v=fTGTnrgjuGA
-  (Plus court, directement applicable)
+**Ressources Cutter** :
+- Documentation officielle : https://cutter.re/docs/
+- GitHub : https://github.com/rizinorg/cutter
 
 ---
 
@@ -761,28 +783,28 @@ Mot de passe des archives : `crackmes.one`
 
 ## Niveau 1 : crackmes.one (difficulté 1.0)
 
-1. Va sur https://crackmes.one
-2. Filtre : Difficulty 1.0, Language C/C++, Platform Linux
-3. Télécharge 3 crackmes et résous-les avec Ghidra
+1. Accéder à https://crackmes.one
+2. Filtrer : Difficulty 1.0, Language C/C++, Platform Linux
+3. Télécharger 3 crackmes et les résoudre avec Cutter
 
 **Objectif** : trouver le mot de passe ou la clé de validation.
 
 ## Niveau 2 : TryHackMe
 
-Crée un compte gratuit sur https://tryhackme.com et fais ces rooms dans l'ordre :
+Créer un compte gratuit sur https://tryhackme.com et suivre ces rooms dans l'ordre :
 
-1. **CC: Ghidra** - Introduction à l'outil
-   https://tryhackme.com/room/ccghidra
-
-2. **Basic Malware RE** - Premiers pas en analyse
+1. **Basic Malware RE** - Premiers pas en analyse
    https://tryhackme.com/room/basicmalwarere
+
+2. **Reversing ELF** - Analyse de binaires Linux
+   https://tryhackme.com/room/reverselfiles
 
 3. **REloaded** - Niveau intermédiaire
    https://tryhackme.com/room/dvagstfhg
 
 ## Niveau 3 : HackTheBox
 
-Challenges de reverse engineering (nécessite un compte gratuit) :
+Challenges de reverse engineering (compte gratuit requis) :
 
 1. **Find The Easy Pass** - Très facile
 2. **Impossible Password** - Facile
@@ -794,7 +816,7 @@ Pack complet : https://ctf.hackthebox.com/pack/malware-reversing-essentials
 
 https://pwn.college/computing-101/assembly-crash-course/
 
-Challenges interactifs pour apprendre l'assembleur. Gratuit, excellente pédagogie.
+Challenges interactifs pour apprendre l'assembleur. Gratuit, pédagogie de qualité.
 
 ---
 
@@ -856,7 +878,7 @@ leave               - mov rsp, rbp + pop rbp
 
 ## Livres gratuits
 - **Reverse Engineering for Beginners** (Dennis Yurichev) - https://beginners.re
-  Version française disponible, 1000+ pages, LA référence gratuite
+  Version française disponible, 1000+ pages, référence gratuite majeure
 
 - **PC Assembly Language** (Paul Carter) - https://pacman128.github.io/static/pcasm-book-french.pdf
   Traduction française, orienté apprentissage
@@ -864,9 +886,10 @@ leave               - mov rsp, rbp + pop rbp
 ## Sites de référence
 - **Compiler Explorer** : https://godbolt.org
 - **x86 Instruction Reference** : https://www.felixcloutier.com/x86/
-- **Ghidra Cheat Sheet** : https://ghidra-sre.org/CheatSheet.html
+- **Cutter Documentation** : https://cutter.re/docs/
+- **Rizin Book** : https://book.rizin.re/
 
-## Chaînes YouTube (anglais, mais très visuelles)
+## Chaînes YouTube (anglais, contenu visuel)
 - **Low Level Learning** - Explications claires et courtes
 - **LiveOverflow** - Spécialiste RE et CTF
 - **John Hammond** - CTF et malware analysis
@@ -875,7 +898,7 @@ leave               - mov rsp, rbp + pop rbp
 ## Communautés
 - **Root-Me** : https://www.root-me.org (challenges en français)
 - **NewbieContest** : https://www.newbiecontest.org (français)
-- **Discord "Hack The Box"** : communauté active
+- **Discord Rizin** : communauté active autour de Cutter/Rizin
 
 ---
 
@@ -888,11 +911,12 @@ leave               - mov rsp, rbp + pop rbp
 | 4-5 | 2 | Savoir lire les instructions de base |
 | 6-7 | 3 | Comprendre les boucles et conditions |
 | 8-9 | 4 | Comprendre les fonctions et la pile |
-| 10-11 | 5 | Utiliser Ghidra efficacement |
+| 10-11 | 5 | Utiliser Cutter efficacement |
 | 12+ | 6 | Pratiquer sur des challenges |
 
-**Conseil** : ne pas avoir peur de bloquer. Le reverse engineering demande de la patience. Reviens sur les concepts quand tu bloques sur un challenge.
+**Conseil** : 
+le reverse engineering demande de la patience. 
+Il est normal de bloquer régulièrement. 
+Revenir sur les concepts fondamentaux aide souvent à débloquer une situation.
 
 ---
-
-Bonne chance ! 🐐

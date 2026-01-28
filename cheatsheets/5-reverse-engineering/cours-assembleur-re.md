@@ -7,19 +7,6 @@
 
 ---
 
-## Architecture du cours
-
-| Module | Contenu | Durée |
-|--------|---------|-------|
-| 0 | Environnement et outils | 1 semaine |
-| 1 | Fondamentaux : registres et mémoire | 1-2 semaines |
-| 2 | Instructions de base | 2 semaines |
-| 3 | Flux de contrôle | 2 semaines |
-| 4 | Fonctions et pile | 2 semaines |
-| 5 | Introduction à Cutter | 1-2 semaines |
-| 6 | Premiers challenges | continu |
-
----
 
 # Module 0 : environnement et outils
 

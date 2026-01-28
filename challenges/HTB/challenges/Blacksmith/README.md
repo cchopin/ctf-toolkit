@@ -6,7 +6,7 @@
 
 | Info | Valeur |
 |------|--------|
-| **Flag** | `HTB{s3cc0mp_1s_t00_s3cur3}` |
+| **Flag** | `HTB{XXXXXXXXXXXXXXXXXXXXXXX}` |
 | **Vulnérabilité** | Shellcode execution dans `shield()` |
 | **Contrainte** | Seccomp limite les syscalls à `open`, `read`, `write`, `exit` |
 | **Technique** | Shellcode "open-read-write" pour lire `flag.txt` |
@@ -921,7 +921,7 @@ Do you have the materials I need to craft the Ultimate Weapon?
 > Excellent choice! This luminous shield is empowered with Sun's light! ☀
 It will protect you from any attack and it can reflect enemies attacks back!
 Do you like your new weapon?
-> HTB{s3cc0mp_1s_t00_s3cur3}
+> HTB{XXXXXXXXXXXXXXXXXXXXXXX}
 ```
 
 ---

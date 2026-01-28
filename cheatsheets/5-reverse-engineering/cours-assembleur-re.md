@@ -1,9 +1,9 @@
 # Cours d'assembleur x86-64 pour le reverse engineering
 
-**Objectif** : apprendre à lire l'assembleur pour analyser des binaires et des malwares.
-**Plateforme** : Mac M2 (avec solutions de compatibilité pour x86-64)
-**Prérequis** : connaissances de base en C
-**Durée estimée** : 8-12 semaines à raison de 5-10h/semaine
+**Objectif** : apprendre à lire l'assembleur pour analyser des binaires et des malwares.  
+**Plateforme** : Mac M2 (avec solutions de compatibilité pour x86-64)  
+**Prérequis** : connaissances de base en C  
+
 
 ---
 

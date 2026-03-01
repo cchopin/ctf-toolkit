@@ -115,5 +115,18 @@ scans/
 results/
 output/
 
+# ===================
+# HTB ACTIVE BOXES (ne pas commit tant que non retired)
+# ===================
+# Boxes actives sur HTB - ne pas publier de write-up
+# Pour retirer une box : supprimer la ligne ici + supprimer le .active dans le dossier
+# Lister les actives : find challenges/ -name ".active"
+challenges/HTB/Machines/Facts/
+challenges/HTB/Machines/Interpreter/
+challenges/HTB/Machines/MonitorsFour/
+challenges/HTB/Machines/Conversor/
+challenges/HTB/Pirate/
+challenges/HTB/Sherlocks/Ruse/
+
 # Downloaded payloads repo
 payloads/PayloadsAllTheThings/
